@@ -10,10 +10,10 @@
 #if (ONI_PLATFORM == ONI_PLATFORM_MACOSX)
 #include <GLUT/glut.h>
 #else
-#include <GL/glut.h>
+//#include <GL/glut.h>
 #endif
 
-#include "..\OniSampleUtilities.h"
+#include "GrabDetector\OniSampleUtilities.h"
 
 #define GL_WIN_SIZE_X	640
 #define GL_WIN_SIZE_Y	480
@@ -25,19 +25,6 @@
 #define MIN_CHUNKS_SIZE(data_size, chunk_size)	(MIN_NUM_CHUNKS(data_size, chunk_size) * (chunk_size))
 
 SampleViewer* SampleViewer::ms_self = NULL;
-
-void SampleViewer::GLUTIdle()
-{
-	glutPostRedisplay();
-}
-void SampleViewer::GLUTDisplay()
-{
-	SampleViewer::ms_self->Display();
-}
-void SampleViewer::GLUTKeyboard(unsigned char key, int x, int y)
-{
-	SampleViewer::ms_self->OnKey(key, x, y);
-}
 
 
 SampleViewer::SampleViewer(const char* strSampleName, openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color) :
@@ -167,19 +154,6 @@ openni::Status SampleViewer::Init(int argc, char **argv)
 
 	m_optimalExposure = false;
 
-	return InitOpenGL(argc, argv);
-
-}
-openni::Status SampleViewer::Run()	//Does not return
-{
-	try{
-		glutMainLoop();
-	}catch(...)
-	{
-		printf("Exited GLUT main loop");
-	}
-
-	return openni::STATUS_OK;
 }
 
 //This function updates the NiTE tracker and gesture detection and fills their results in the given arguments
@@ -295,14 +269,6 @@ void SampleViewer::Display()
 
 
 	//Now we draw the data
-
-	glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, GL_WIN_SIZE_X, GL_WIN_SIZE_Y, 0, -1.0, 1.0);
-
 	if (m_depthFrame.isValid())
 	{
 		calculateHistogram(m_pDepthHist, MAX_DEPTH, m_depthFrame);
@@ -361,54 +327,8 @@ void SampleViewer::Display()
 			pTexRow += m_nTexMapX;
 		}
 	}
-
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, m_nTexMapX, m_nTexMapY, 0, GL_RGB, GL_UNSIGNED_BYTE, m_pTexMap);
-
-	// Display the OpenGL texture map
-	glColor4f(1,1,1,1);
-
-	glEnable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-
-	int nXRes = m_width;
-	int nYRes = m_height;
-
-	// upper left
-	glTexCoord2f(0, 0);
-	glVertex2f(0, 0);
-	// upper right
-	glTexCoord2f((float)nXRes/(float)m_nTexMapX, 0);
-	glVertex2f(GL_WIN_SIZE_X, 0);
-	// bottom right
-	glTexCoord2f((float)nXRes/(float)m_nTexMapX, (float)nYRes/(float)m_nTexMapY);
-	glVertex2f(GL_WIN_SIZE_X, GL_WIN_SIZE_Y);
-	// bottom left
-	glTexCoord2f(0, (float)nYRes/(float)m_nTexMapY);
-	glVertex2f(0, GL_WIN_SIZE_Y);
-
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-	
 	DrawDetectorInfo();
-
-	// Swap the OpenGL display buffers
-	glutSwapBuffers();
 }
-
-#ifndef USE_GLES
-void glPrintString(void *font, const char *str)
-{
-	int i,l = (int)strlen(str);
-
-	for(i=0; i<l; i++)
-	{   
-		glutBitmapCharacter(font,*str++);
-	}   
-}
-#endif
 
 //This function draws the detector information - the hand point/status and exposure status
 void SampleViewer::DrawDetectorInfo(void)
@@ -440,6 +360,7 @@ void SampleViewer::DrawHandStatus( PSLabs::IGrabEventListener::GrabEventType sta
 	handX *= GL_WIN_SIZE_X / m_width;
 	handY *= GL_WIN_SIZE_Y / m_height;
 
+	/*
 	glColor3f(0.0f, 0.0f, 1.0f);
 	glRasterPos2f(handX, handY);
 
@@ -449,17 +370,18 @@ void SampleViewer::DrawHandStatus( PSLabs::IGrabEventListener::GrabEventType sta
 		glPrintString(GLUT_BITMAP_HELVETICA_18, "RELEASE");
 	else if(status == PSLabs::IGrabEventListener::NO_EVENT)
 		glPrintString(GLUT_BITMAP_HELVETICA_18, "NO EVENT");
+		*/
 }
 
 void SampleViewer::DrawExposureStatus(void)
 {
-	if(m_optimalExposure)
-		glColor3f(0.0f, 1.0f, 0.0f);
-	else
-		glColor3f(1.0f, 0.0f, 0.0f);
+//	if(m_optimalExposure)
+//		glColor3f(0.0f, 1.0f, 0.0f);
+//	else
+	//	glColor3f(1.0f, 0.0f, 0.0f);
 
-	glRasterPos2i(0, 18);
-	glPrintString(GLUT_BITMAP_HELVETICA_18, "Optimal Exposure");
+//	glRasterPos2i(0, 18);
+//	glPrintString(GLUT_BITMAP_HELVETICA_18, "Optimal Exposure");
 }
 
 
@@ -469,15 +391,19 @@ void SampleViewer::DrawHandPoint(float x, float y, float z)
 	x *= GL_WIN_SIZE_X / m_width;
 	y *= GL_WIN_SIZE_Y / m_height;
 
+	/*
 	glColor3f(0.0f,1.0f,0.0f);
 	glPointSize(12);
 	
 	glBegin(GL_POINTS);
 	glVertex2f(x,y);
 	glEnd();
+	*/
+
 }
 
-void SampleViewer::OnKey(unsigned char key, int /*x*/, int /*y*/)
+/*
+void SampleViewer::OnKey(unsigned char key, int, int)
 {
 	switch (key)
 	{
@@ -526,30 +452,7 @@ void SampleViewer::OnKey(unsigned char key, int /*x*/, int /*y*/)
 	}
 
 }
-
-openni::Status SampleViewer::InitOpenGL(int argc, char **argv)
-{
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutInitWindowSize(GL_WIN_SIZE_X, GL_WIN_SIZE_Y);
-	glutCreateWindow (m_strSampleName);
-	// 	glutFullScreen();
-	glutSetCursor(GLUT_CURSOR_NONE);
-
-	InitOpenGLHooks();
-
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
-
-	return openni::STATUS_OK;
-
-}
-void SampleViewer::InitOpenGLHooks()
-{
-	glutKeyboardFunc(GLUTKeyboard);
-	glutDisplayFunc(GLUTDisplay);
-	glutIdleFunc(GLUTIdle);
-}
+*/
 
 void SampleViewer::ProcessGrabEvent( PSLabs::IGrabEventListener::GrabEventType Type )
 {

@@ -30,6 +30,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="nite.props" />
+    <Import Project="grab.props" />
     <Import Project="..\..\..\libs\openFrameworksCompiled\project\vs2010\openFrameworksRelease.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
@@ -69,7 +70,7 @@
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
-      <AdditionalDependencies>libeay32.lib;ssleay32.lib;libwebsocketswin32d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GrabDetector.lib;libeay32.lib;ssleay32.lib;libwebsocketswin32d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\addons\ofxLibwebsockets\libs\libwebsockets\lib\win32;..\..\..\addons\ofxLibwebsockets\libs\openssl\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
 
@@ -127,6 +128,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofxGrab.cpp" />
     <ClCompile Include="src\testApp.cpp" />
+    <ClCompile Include="src\Viewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\addons\ofxLibwebsockets\libs\jsoncpp\json\json-forwards.h" />
@@ -213,6 +215,7 @@
     <ClInclude Include="..\..\..\addons\ofxLibwebsockets\src\ofxLibwebsockets.h" />
     <ClInclude Include="src\ofxGrab.h" />
     <ClInclude Include="src\testApp.h" />
+    <ClInclude Include="src\Viewer.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\libs\openFrameworksCompiled\project\vs2010\openframeworksLib.vcxproj">

@@ -21,7 +21,6 @@ public:
 	virtual ~SampleViewer();
 
 	virtual openni::Status Init(int argc, char **argv);
-	virtual openni::Status Run();	//Does not return
 
 	class GrabEventListener : public PSLabs::IGrabEventListener
 	{
@@ -40,12 +39,6 @@ public:
 
 protected:
 	virtual void Display();
-	virtual void DisplayPostDraw(){};	// Overload to draw over the screen image
-
-	virtual void OnKey(unsigned char key, int x, int y);
-
-	virtual openni::Status InitOpenGL(int argc, char **argv);
-	void InitOpenGLHooks();
 
 	openni::VideoFrameRef		m_depthFrame;
 	openni::VideoFrameRef		m_colorFrame;

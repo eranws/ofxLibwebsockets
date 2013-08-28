@@ -21,6 +21,9 @@
     <ClCompile Include="src\ofxGrab.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Viewer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="src">
@@ -141,6 +144,9 @@
     <ClInclude Include="..\..\..\addons\ofxLibwebsockets\libs\openssl\openssl\x509_vfy.h" />
     <ClInclude Include="..\..\..\addons\ofxLibwebsockets\src\ofxLibwebsockets.h" />
     <ClInclude Include="src\ofxGrab.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Viewer.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
