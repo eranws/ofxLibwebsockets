@@ -109,7 +109,7 @@ namespace ofxLibwebsockets {
         bool    usingSSL();
         
     protected:
-        std::string interface;
+        std::string interfaceStr;
         ServerOptions defaultOptions;
         
     private:
