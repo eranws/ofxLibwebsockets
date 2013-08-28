@@ -49,3 +49,5 @@ obj/
 project.xcworkspace
 .DS_Store
 *.pyc
+
+grabServer/bin/OpenNI2/Drivers/
