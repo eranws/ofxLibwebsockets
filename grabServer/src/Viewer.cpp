@@ -89,7 +89,7 @@ openni::Status SampleViewer::InitNiTE( void )
 	return openni::STATUS_OK;
 
 }
-openni::Status SampleViewer::Init(int argc, char **argv)
+openni::Status SampleViewer::Init()
 {
 	openni::VideoMode depthVideoMode;
 	openni::VideoMode colorVideoMode;
@@ -154,6 +154,7 @@ openni::Status SampleViewer::Init(int argc, char **argv)
 
 	m_optimalExposure = false;
 
+	return openni::STATUS_OK;
 }
 
 //This function updates the NiTE tracker and gesture detection and fills their results in the given arguments

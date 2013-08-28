@@ -14,12 +14,11 @@ ofxGrab::~ofxGrab(void)
 
 
 
-bool setupOpenNI(std::string uri)
+
+bool ofxGrab::setupOpenNI(std::string uri)
 {
 	openni::Status rc = openni::STATUS_OK;
 	
-	openni::Device device;
-	openni::VideoStream depth, color;
 	const char* deviceURI = openni::ANY_DEVICE;
 	if (uri.length() > 0)
 	{
@@ -137,14 +136,13 @@ bool setupOpenNI(std::string uri)
 	file.close();
 	
 
-//!	SampleViewer sampleViewer("Simple Viewer", device, depth, color);
+	sampleViewer = new SampleViewer("Simple Viewer", device, depth, color);
 
-//!	rc = sampleViewer.Init(argc, argv);
+	rc = sampleViewer->Init();
 	if (rc != openni::STATUS_OK)
 	{
 		openni::OpenNI::shutdown();
 		return -1;
 	}
-//!	sampleViewer.Run();
 }
 

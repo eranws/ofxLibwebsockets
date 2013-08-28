@@ -20,7 +20,8 @@ public:
 	SampleViewer(const char* strSampleName, openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color);
 	virtual ~SampleViewer();
 
-	virtual openni::Status Init(int argc, char **argv);
+	virtual openni::Status Init();
+	virtual void Display();
 
 	class GrabEventListener : public PSLabs::IGrabEventListener
 	{
@@ -38,7 +39,6 @@ public:
 	};
 
 protected:
-	virtual void Display();
 
 	openni::VideoFrameRef		m_depthFrame;
 	openni::VideoFrameRef		m_colorFrame;

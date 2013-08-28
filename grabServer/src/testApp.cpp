@@ -1,5 +1,4 @@
 #include "testApp.h"
-#include "ofxGrab.h"
 //--------------------------------------------------------------
 void testApp::setup(){
     // setup a server with default options on port 9092
@@ -21,7 +20,7 @@ void testApp::setup(){
     // this adds your app as a listener for the server
     server.addListener(this);
     
-	bool niConnected = setupOpenNI();
+	bool niConnected = grab.setupOpenNI();
 
     ofBackground(0);
     ofSetFrameRate(60);
@@ -59,6 +58,9 @@ void testApp::draw(){
     ofDrawBitmapString("Type a message, hit [RETURN] to send:", x, ofGetHeight()-60);
     ofSetColor(255);
     ofDrawBitmapString(toSend, x, ofGetHeight() - 40);
+
+	grab.sampleViewer->Display();
+
 }
 
 //--------------------------------------------------------------

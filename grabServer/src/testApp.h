@@ -3,6 +3,7 @@
 #include "ofMain.h"
 
 #include "ofxLibwebsockets.h"
+#include "ofxGrab.h"
 
 #define NUM_MESSAGES 30 // how many past messages we want to keep
 
@@ -24,7 +25,8 @@ class testApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 		
         ofxLibwebsockets::Server server;
-    
+		ofxGrab grab;
+
         bool bConnected;
     
         //queue of rec'd messages
