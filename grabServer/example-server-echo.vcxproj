@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -29,10 +29,12 @@
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="nite.props" />
     <Import Project="..\..\..\libs\openFrameworksCompiled\project\vs2010\openFrameworksRelease.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="nite.props" />
     <Import Project="..\..\..\libs\openFrameworksCompiled\project\vs2010\openFrameworksDebug.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -70,7 +72,20 @@
       <AdditionalDependencies>libeay32.lib;ssleay32.lib;libwebsocketswin32d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\addons\ofxLibwebsockets\libs\libwebsockets\lib\win32;..\..\..\addons\ofxLibwebsockets\libs\openssl\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-    <PostBuildEvent />
+
+    <PostBuildEvent>
+      <Command>@ECHO Copying OpenNI runtime files
+@IF NOT EXIST "$(TargetDir)OpenNI2.dll" XCOPY /E /Y /Q /D "$(OPENNI2_REDIST)OpenNI2*" "$(TargetDir)" &gt;NUL
+@IF NOT EXIST "$(TargetDir)OpenNI2\Drivers\*.dll" XCOPY /E /Y /Q /D "$(OPENNI2_REDIST)OpenNI2\Drivers\*.*" "$(TargetDir)OpenNI2\Drivers\"
+
+@ECHO Copying NiTE runtime files
+@IF NOT EXIST "$(TargetDir)Nite2.dll" XCOPY  /Y /Q /D "$(NITE2_REDIST)Nite2.dll" "$(TargetDir)" &gt;NUL
+
+</Command>
+    </PostBuildEvent>
+
+
+
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -110,6 +125,7 @@
     <ClCompile Include="..\..\..\addons\ofxLibwebsockets\libs\ofxLibwebsockets\src\Reactor.cpp" />
     <ClCompile Include="..\..\..\addons\ofxLibwebsockets\libs\ofxLibwebsockets\src\Server.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\ofxGrab.cpp" />
     <ClCompile Include="src\testApp.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -195,6 +211,7 @@
     <ClInclude Include="..\..\..\addons\ofxLibwebsockets\libs\openssl\openssl\x509v3.h" />
     <ClInclude Include="..\..\..\addons\ofxLibwebsockets\libs\openssl\openssl\x509_vfy.h" />
     <ClInclude Include="..\..\..\addons\ofxLibwebsockets\src\ofxLibwebsockets.h" />
+    <ClInclude Include="src\ofxGrab.h" />
     <ClInclude Include="src\testApp.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,5 @@
 #include "testApp.h"
-
+#include "ofxGrab.h"
 //--------------------------------------------------------------
 void testApp::setup(){
     // setup a server with default options on port 9092
@@ -21,6 +21,8 @@ void testApp::setup(){
     // this adds your app as a listener for the server
     server.addListener(this);
     
+	bool niConnected = setupOpenNI();
+
     ofBackground(0);
     ofSetFrameRate(60);
 }
@@ -164,3 +166,4 @@ void testApp::gotMessage(ofMessage msg){
 void testApp::dragEvent(ofDragInfo dragInfo){ 
 
 }
+
