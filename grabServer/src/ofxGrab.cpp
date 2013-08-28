@@ -3,7 +3,7 @@
 #include <fstream>
 
 
-ofxGrab::ofxGrab(void)
+ofxGrab::ofxGrab(void) : isConnected(false)
 {
 }
 
@@ -18,33 +18,36 @@ ofxGrab::~ofxGrab(void)
 bool ofxGrab::setupOpenNI(std::string uri)
 {
 	openni::Status rc = openni::STATUS_OK;
-	
+	rc = openni::OpenNI::initialize();
+
+	if (rc != openni::STATUS_OK)
+	{
+		printf("OpenNI Initialization failed:\n%s\n", openni::OpenNI::getExtendedError());
+		return false;
+	}
+
+	if (nite::NiTE::initialize() != nite::STATUS_OK)
+	{
+		printf("NiTE2 Initialization failed!");
+		return false;
+	}
+
+
 	const char* deviceURI = openni::ANY_DEVICE;
 	if (uri.length() > 0)
 	{
 		deviceURI = uri.c_str();
 	}
 
-	rc = openni::OpenNI::initialize();
-
-	if (rc != openni::STATUS_OK)
-	{
-		printf("OpenNI Initialization failed:\n%s\n", openni::OpenNI::getExtendedError());
-		return -1;
-	}
-
-	if (nite::NiTE::initialize() != nite::STATUS_OK)
-	{
-		printf("NiTE2 Initialization failed!");
-		return -1;
-	}
 
 	rc = device.open(deviceURI);
+
+	//add fallback to .oni file
 	if (rc != openni::STATUS_OK)
 	{
 		printf("Device open failed:\n%s\n", openni::OpenNI::getExtendedError());
 		openni::OpenNI::shutdown();
-		return -1;
+		return false;
 	}
 	rc = device.setDepthColorSyncEnabled(true);
 
@@ -61,7 +64,7 @@ bool ofxGrab::setupOpenNI(std::string uri)
 		if(rc != openni::STATUS_OK)
 		{
 			printf("Couldn't set depth mode:\n%s\n", openni::OpenNI::getExtendedError());
-			return -1;
+			return false;
 		}
 		
 		rc = depth.start();
@@ -69,13 +72,13 @@ bool ofxGrab::setupOpenNI(std::string uri)
 		{
 			printf("Couldn't start depth stream:\n%s\n", openni::OpenNI::getExtendedError());
 			depth.destroy();
-			return -1;
+			return false;
 		}
 	}
 	else
 	{
 		printf("Couldn't find depth stream:\n%s\n", openni::OpenNI::getExtendedError());
-		return -1;
+		return false;
 	}
 
 
@@ -89,7 +92,7 @@ bool ofxGrab::setupOpenNI(std::string uri)
 		if(rc != openni::STATUS_OK)
 		{
 			printf("Couldn't set color mode:\n%s\n", openni::OpenNI::getExtendedError());
-			return -1;
+			return false;
 		}
 
 		rc = color.start();
@@ -97,13 +100,13 @@ bool ofxGrab::setupOpenNI(std::string uri)
 		{
 			printf("Couldn't start color stream:\n%s\n", openni::OpenNI::getExtendedError());
 			color.destroy();
-			return -1;
+			return false;
 		}
 	}
 	else
 	{
 		printf("Couldn't find color stream:\n%s\n", openni::OpenNI::getExtendedError());
-		return -1;
+		return false;
 	}
 
 	//Set stream parameters
@@ -118,12 +121,12 @@ bool ofxGrab::setupOpenNI(std::string uri)
 		color.stop();
 		color.destroy();
 	}
-	
+
 	if (!depth.isValid())
 	{
 		printf("No valid depth stream. Exiting\n");
 		openni::OpenNI::shutdown();
-		return -1;
+		return false;
 	}
 
 	std::ifstream file("Data/grab_gesture.dat");
@@ -131,7 +134,7 @@ bool ofxGrab::setupOpenNI(std::string uri)
 	{
 		printf("Cannot find \"Data/grab_gesture.dat\"");
 		openni::OpenNI::shutdown();
-		return -1;
+		return false;
 	}
 	file.close();
 	
@@ -142,7 +145,23 @@ bool ofxGrab::setupOpenNI(std::string uri)
 	if (rc != openni::STATUS_OK)
 	{
 		openni::OpenNI::shutdown();
-		return -1;
+		return false;
 	}
+
+	isConnected = true;
+	return true;
 }
+
+//--------------------------------------------------------------
+void ofxGrab::update(){
+	if (isConnected) 
+		sampleViewer->update();
+}
+
+void ofxGrab::draw(){
+	if (isConnected) 
+		sampleViewer->draw();
+}
+
+
 

@@ -20,7 +20,7 @@ void testApp::setup(){
     // this adds your app as a listener for the server
     server.addListener(this);
     
-	bool niConnected = grab.setupOpenNI();
+	grab.setupOpenNI();
 
     ofBackground(0);
     ofSetFrameRate(60);
@@ -28,6 +28,7 @@ void testApp::setup(){
 
 //--------------------------------------------------------------
 void testApp::update(){
+	grab.update();
 }
 
 //--------------------------------------------------------------
@@ -59,7 +60,7 @@ void testApp::draw(){
     ofSetColor(255);
     ofDrawBitmapString(toSend, x, ofGetHeight() - 40);
 
-	grab.sampleViewer->Display();
+	grab.draw();
 
 }
 

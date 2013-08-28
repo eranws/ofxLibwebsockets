@@ -5,14 +5,6 @@
 
 #include "Viewer.h"
 
-
-
-#if (ONI_PLATFORM == ONI_PLATFORM_MACOSX)
-#include <GLUT/glut.h>
-#else
-//#include <GL/glut.h>
-#endif
-
 #include "GrabDetector\OniSampleUtilities.h"
 
 #define GL_WIN_SIZE_X	640
@@ -248,7 +240,7 @@ void SampleViewer::UpdateAlgorithm(void)
 	}
 }
 
-void SampleViewer::Display()
+void SampleViewer::update()
 {
 	int changedIndex = 0;
 	openni::Status rc = openni::STATUS_OK;
@@ -268,7 +260,10 @@ void SampleViewer::Display()
 	//Update algorithm
 	UpdateAlgorithm();
 
+}
 
+void SampleViewer::draw()
+{
 	//Now we draw the data
 	if (m_depthFrame.isValid())
 	{
@@ -409,6 +404,7 @@ void SampleViewer::OnKey(unsigned char key, int, int)
 	switch (key)
 	{
 	case 27:
+	//TODO: extract to exit()
 		m_depthStream.stop();
 		m_colorStream.stop();
 		m_depthStream.destroy();
@@ -446,6 +442,7 @@ void SampleViewer::OnKey(unsigned char key, int, int)
 		break;
 
 	case 't':
+	// resetHandTracker
 		m_handTracker.stopHandTracking(m_lastHandID);
 		m_grabDetector->Reset();
 

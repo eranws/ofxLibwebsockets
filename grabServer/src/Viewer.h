@@ -21,7 +21,10 @@ public:
 	virtual ~SampleViewer();
 
 	virtual openni::Status Init();
-	virtual void Display();
+
+	void update();
+	void draw();
+
 
 	class GrabEventListener : public PSLabs::IGrabEventListener
 	{
