@@ -29,6 +29,7 @@ void testApp::setup(){
 //--------------------------------------------------------------
 void testApp::update(){
 	grab.update();
+	server.send(grab.sampleViewer->getStatusJson());
 }
 
 //--------------------------------------------------------------

@@ -5,6 +5,8 @@
 #include <Nite.h>
 #include "GrabDetector/GrabDetector.h"
 
+#include <string>
+
 #define MAX_DEPTH 10000
 
 enum DisplayModes
@@ -24,6 +26,7 @@ public:
 
 	void update();
 	void draw();
+	std::string getStatusJson();
 
 
 	class GrabEventListener : public PSLabs::IGrabEventListener

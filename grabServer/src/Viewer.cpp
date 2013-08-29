@@ -464,3 +464,53 @@ void SampleViewer::ProcessGrabEvent( PSLabs::IGrabEventListener::GrabEventType T
 	printf(" event\n");
 }
 
+
+#include "json.h"
+std::string SampleViewer::getStatusJson()
+{
+	Json::Value root;
+
+
+	//timestamp
+
+	if(m_grabDetector != NULL)
+	{
+		PSLabs::IGrabEventListener::EventParams grabStatus;
+		m_grabDetector->GetLastEvent(&grabStatus);
+
+		float handX,handY,handZ;
+		if(m_grabDetector->GetHandPosition(&handX,&handY,&handZ) == openni::STATUS_OK)
+		{
+			Json::Value track;
+
+			//xyz
+				track["event"] = "update";
+				track["x"] = handX;
+				track["y"] = handY;
+				track["z"] = handZ;
+	
+
+			float screenX,screenY,screenZ;
+			openni::CoordinateConverter::convertWorldToDepth(m_depthStream, handX, handY, handZ, &screenX, &screenY, &screenZ);
+			track["screenX"] = screenX;
+			track["screenY"] = screenY;
+
+			track["type"] = grabStatus.Type;
+
+		root.append(track);
+
+		}
+	}
+
+
+
+		
+//		if (root.size() > 0) {
+			Json::StyledWriter writer;
+			return writer.write( root );
+}
+
+
+
+
+

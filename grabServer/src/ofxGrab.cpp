@@ -10,6 +10,7 @@ ofxGrab::ofxGrab(void) : isConnected(false)
 
 ofxGrab::~ofxGrab(void)
 {
+	delete sampleViewer;
 }
 
 
