@@ -465,13 +465,11 @@ void SampleViewer::ProcessGrabEvent( PSLabs::IGrabEventListener::GrabEventType T
 }
 
 
-#include "json.h"
-std::string SampleViewer::getStatusJson()
+Json::Value SampleViewer::getStatusJson()
 {
-	Json::Value root;
+	Json::Value track;
 
-
-	//timestamp
+	//add timestamp?
 
 	if(m_grabDetector != NULL)
 	{
@@ -481,7 +479,6 @@ std::string SampleViewer::getStatusJson()
 		float handX,handY,handZ;
 		if(m_grabDetector->GetHandPosition(&handX,&handY,&handZ) == openni::STATUS_OK)
 		{
-			Json::Value track;
 
 			//xyz
 				track["event"] = "update";
@@ -497,17 +494,13 @@ std::string SampleViewer::getStatusJson()
 
 			track["type"] = grabStatus.Type;
 
-		root.append(track);
-
 		}
 	}
 
+	return track;
 
 
 		
-//		if (root.size() > 0) {
-			Json::StyledWriter writer;
-			return writer.write( root );
 }
 
 

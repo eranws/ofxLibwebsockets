@@ -4,6 +4,7 @@
 #include <OpenNI.h>
 #include <Nite.h>
 #include "GrabDetector/GrabDetector.h"
+#include "json.h"
 
 #include <string>
 
@@ -26,7 +27,7 @@ public:
 
 	void update();
 	void draw();
-	std::string getStatusJson();
+	Json::Value getStatusJson();
 
 
 	class GrabEventListener : public PSLabs::IGrabEventListener

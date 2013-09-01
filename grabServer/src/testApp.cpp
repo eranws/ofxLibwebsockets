@@ -1,4 +1,5 @@
 #include "testApp.h"
+
 //--------------------------------------------------------------
 void testApp::setup(){
     // setup a server with default options on port 9092
@@ -29,7 +30,13 @@ void testApp::setup(){
 //--------------------------------------------------------------
 void testApp::update(){
 	grab.update();
-	server.send(grab.sampleViewer->getStatusJson());
+
+	Json::Value v = grab.sampleViewer->getStatusJson();
+	if (v.size() > 0) {
+		Json::StyledWriter writer;
+		std::string s = writer.write(v);
+		server.send(s);
+	}
 }
 
 //--------------------------------------------------------------
