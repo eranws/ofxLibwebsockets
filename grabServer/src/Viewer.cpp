@@ -367,25 +367,26 @@ Json::Value SampleViewer::getStatusJson()
 		float handX,handY,handZ;
 		if(m_grabDetector->GetHandPosition(&handX,&handY,&handZ) == openni::STATUS_OK)
 		{
+			Json::Value position;
 
-			//xyz
-				track["event"] = "update";
-				track["x"] = handX;
-				track["y"] = handY;
-				track["z"] = handZ;
+			Json::Value realPosition;
+			realPosition.append(handX);
+			realPosition.append(handY);
+			realPosition.append(handZ);
 	
+			position["real"] = realPosition;
 
-			float screenX,screenY,screenZ;
-			openni::CoordinateConverter::convertWorldToDepth(m_depthStream, handX, handY, handZ, &screenX, &screenY, &screenZ);
-			track["screenX"] = screenX;
-			track["screenY"] = screenY;
+			float cameraX,cameraY,cameraZ;
+			openni::CoordinateConverter::convertWorldToDepth(m_depthStream, handX, handY, handZ, &cameraX, &cameraY, &cameraZ);
 
-			track["type"] = grabStatus.Type;
+			Json::Value cam;
+			cam.append(cameraX);
+			cam.append(cameraY);
+	
+			position["cam"] = cam;
 
-			track["pos"].append(1);
-			track["pos"].append(2);
-			track["pos"].append(3);
-
+			track["position"] = position;
+			track["grab"] = grabStatus.Type == PSLabs::IGrabEventListener::GRAB_EVENT;
 		}
 	}
 

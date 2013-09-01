@@ -58,18 +58,15 @@ function setupSocket(){
 		} 
 
 		// received message
-		socket.onmessage =function got_packet(msg) {
-		var jsonData;
-		try {
-			jsonData = JSON.parse(msg.data);
-		} catch( e ){
-			$("#err_status").text(e.toString()).css("color", "red");
-			//jsonData = messageEvent.data;
-		}
-
-		console.log(jsonData.screenX);
-
-		messageDiv.innerHTML = msg.data;// + "<br />" + messageDiv.innerHTML;
+		socket.onmessage = function got_packet(msg) {
+			var jsonData;
+			try {
+				jsonData = JSON.parse(msg.data);
+				appUpdate(jsonData);
+			} catch( e ){
+				//$("#err_status").text(e.toString()).css("color", "red");
+				//jsonData = messageEvent.data;
+			}
 		}
 
 		socket.onclose = function(){

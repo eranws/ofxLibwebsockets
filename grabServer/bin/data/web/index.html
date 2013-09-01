@@ -8,11 +8,13 @@
     <script type="text/javascript" src="js/libs/jquery-1.7.1.min.js"></script>
  	<script type="text/javascript" src="js/utils.js"></script>
  	<script type="text/javascript" src="js/main.js"></script>
+ 	<script type="text/javascript" src="js/app.js"></script>
 </head>
 
 <body>
 	<div id="container">
 		<h2>ofxLibwebsockets test applet</h2><hr />
+
 		<div>
 			<h3>Browser info</h3><hr />
 			<div class="info">
@@ -20,12 +22,20 @@
 				<div id="status">Not initialized</div><br />
 			</div>
 		</div>
+
+		<div>
+			<canvas id="example" width="200" height="200">
+				This text is displayed if your browser does not support HTML5 Canvas.
+			</canvas>
+		</div>
+
 		<div>
 			<h3>Input</h3>
 			<hr />
 			<input id="message" type="text" />
 			<input id="button" type="button" value="send" />
 		</div>
+		
 		<div>
 			<h3>Messages</h3>
 			<hr />
