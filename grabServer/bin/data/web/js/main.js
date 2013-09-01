@@ -59,7 +59,7 @@ function setupSocket(){
 
 		// received message
 		socket.onmessage =function got_packet(msg) {
-			messageDiv.innerHTML = msg.data + "<br />" + messageDiv.innerHTML;
+			messageDiv.innerHTML = msg.data;// + "<br />" + messageDiv.innerHTML;
 		}
 
 		socket.onclose = function(){
