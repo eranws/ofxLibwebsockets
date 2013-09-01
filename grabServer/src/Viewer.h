@@ -25,21 +25,6 @@ public:
 	Json::Value getStatusJson();
 
 
-	class GrabEventListener : public PSLabs::IGrabEventListener
-	{
-	public:
-		GrabEventListener(SampleViewer* sampleViewer) : m_sampleViewer(sampleViewer)
-		{
-
-		}
-		virtual void DLL_CALL ProcessGrabEvent( const EventParams& params )
-		{
-			m_sampleViewer->ProcessGrabEvent(params.Type);
-		}
-
-		SampleViewer* m_sampleViewer;
-	};
-
 protected:
 
 	openni::VideoFrameRef		m_depthFrame;
@@ -54,8 +39,6 @@ private:
 	SampleViewer(const SampleViewer&);
 	SampleViewer& operator=(SampleViewer&);
 
-
-	void ProcessGrabEvent( PSLabs::IGrabEventListener::GrabEventType Type );
 	void UpdateAlgorithm(void);
 	void UpdateNiTETrackers( bool* handLost, bool* gestureComplete, bool* handTracked, float* handX, float* handY, float* handZ );
 	void DrawDetectorInfo(void);
@@ -68,7 +51,6 @@ private:
 	int			m_height;
 
 	PSLabs::IGrabDetector* m_grabDetector;
-	GrabEventListener* m_grabListener;
 
 	nite::HandTracker m_handTracker;
 	nite::HandId m_lastHandID;

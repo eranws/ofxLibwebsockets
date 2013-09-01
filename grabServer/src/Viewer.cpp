@@ -9,7 +9,7 @@
 
 
 SampleViewer::SampleViewer(openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color) :
-m_device(device), m_depthStream(depth), m_colorStream(color), m_streams(NULL), m_grabListener(NULL), m_grabDetector(NULL)
+m_device(device), m_depthStream(depth), m_colorStream(color), m_streams(NULL), m_grabDetector(NULL)
 {
 }
 
@@ -25,7 +25,6 @@ SampleViewer::~SampleViewer()
 		PSLabs::ReleaseGrabDetector(m_grabDetector);
 	}
 
-	delete m_grabListener;
 }
 
 //Initializes new GrabDetector object and events
@@ -38,10 +37,6 @@ openni::Status SampleViewer::InitGrabDetector( void )
 		printf("Error - cannot initialize grab detector: status %d \n", m_grabDetector->GetLastEvent(NULL));
 		return openni::STATUS_ERROR;
 	}
-
-	//Initialize GrabDetector
-	m_grabListener = new GrabEventListener(this);
-	m_grabDetector->AddListener(m_grabListener);
 
 	return openni::STATUS_OK;
 }
@@ -357,19 +352,6 @@ void SampleViewer::OnKey(unsigned char key, int, int)
 
 }
 */
-
-void SampleViewer::ProcessGrabEvent( PSLabs::IGrabEventListener::GrabEventType Type )
-{
-	printf("Got ");
-	if(Type == PSLabs::IGrabEventListener::GRAB_EVENT)
-		printf("Grab");
-	else if(Type == PSLabs::IGrabEventListener::RELEASE_EVENT)
-		printf("Release");
-	else if(Type == PSLabs::IGrabEventListener::NO_EVENT)
-		printf("No Event?!");
-	printf(" event\n");
-}
-
 
 Json::Value SampleViewer::getStatusJson()
 {
