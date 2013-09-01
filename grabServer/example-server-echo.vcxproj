@@ -30,7 +30,6 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="nite.props" />
-    <Import Project="grab.props" />
     <Import Project="..\..\..\libs\openFrameworksCompiled\project\vs2010\openFrameworksRelease.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
@@ -73,7 +72,6 @@
       <AdditionalDependencies>GrabDetector.lib;libeay32.lib;ssleay32.lib;libwebsocketswin32d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\addons\ofxLibwebsockets\libs\libwebsockets\lib\win32;..\..\..\addons\ofxLibwebsockets\libs\openssl\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
-
     <PostBuildEvent>
       <Command>@ECHO Copying OpenNI runtime files
 @IF NOT EXIST "$(TargetDir)OpenNI2.dll" XCOPY /E /Y /Q /D "$(OPENNI2_REDIST)OpenNI2*" "$(TargetDir)" &gt;NUL
@@ -84,9 +82,6 @@
 
 </Command>
     </PostBuildEvent>
-
-
-
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -108,7 +103,7 @@
       <DataExecutionPrevention />
       <TargetMachine>MachineX86</TargetMachine>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-      <AdditionalDependencies>libeay32.lib;ssleay32.lib;libwebsocketswin32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GrabDetector.lib;libeay32.lib;ssleay32.lib;libwebsocketswin32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\..\addons\ofxLibwebsockets\libs\libwebsockets\lib\win32;..\..\..\addons\ofxLibwebsockets\libs\openssl\lib\win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent />
