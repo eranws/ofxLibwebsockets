@@ -12,23 +12,16 @@
 
 #define MAX_DEPTH 10000
 
-enum DisplayModes
-{
-	DISPLAY_MODE_OVERLAY,
-	DISPLAY_MODE_DEPTH,
-	DISPLAY_MODE_IMAGE
-};
-
 class SampleViewer
 {
 public:
-	SampleViewer(const char* strSampleName, openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color);
+	SampleViewer(openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color);
 	virtual ~SampleViewer();
 
-	virtual openni::Status Init();
-
+	openni::Status Init();
 	void update();
 	void draw();
+
 	Json::Value getStatusJson();
 
 
@@ -61,11 +54,6 @@ private:
 	SampleViewer(const SampleViewer&);
 	SampleViewer& operator=(SampleViewer&);
 
-	static SampleViewer* ms_self;
-	static void GLUTIdle();
-	static void GLUTDisplay();
-	static void GLUTKeyboard(unsigned char key, int x, int y);
-
 
 	void ProcessGrabEvent( PSLabs::IGrabEventListener::GrabEventType Type );
 	void UpdateAlgorithm(void);
@@ -75,11 +63,7 @@ private:
 	openni::Status InitNiTE(void);
 	
 	float			m_pDepthHist[MAX_DEPTH];
-	char			m_strSampleName[ONI_MAX_STR];
-	unsigned int		m_nTexMapX;
-	unsigned int		m_nTexMapY;
-	DisplayModes		m_eViewState;
-	openni::RGB888Pixel*	m_pTexMap;
+
 	int			m_width;
 	int			m_height;
 

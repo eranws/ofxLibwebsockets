@@ -140,7 +140,7 @@ bool ofxGrab::setupOpenNI(std::string uri)
 	file.close();
 	
 
-	sampleViewer = new SampleViewer("Simple Viewer", device, depth, color);
+	sampleViewer = new SampleViewer(device, depth, color);
 
 	rc = sampleViewer->Init();
 	if (rc != openni::STATUS_OK)

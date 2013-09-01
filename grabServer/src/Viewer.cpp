@@ -7,34 +7,17 @@
 
 #include "GrabDetector\OniSampleUtilities.h"
 
-#define GL_WIN_SIZE_X	640
-#define GL_WIN_SIZE_Y	480
-#define TEXTURE_SIZE	512
 
-#define DEFAULT_DISPLAY_MODE	DISPLAY_MODE_DEPTH
-
-#define MIN_NUM_CHUNKS(data_size, chunk_size)	((((data_size)-1) / (chunk_size) + 1))
-#define MIN_CHUNKS_SIZE(data_size, chunk_size)	(MIN_NUM_CHUNKS(data_size, chunk_size) * (chunk_size))
-
-SampleViewer* SampleViewer::ms_self = NULL;
-
-
-SampleViewer::SampleViewer(const char* strSampleName, openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color) :
-m_device(device), m_depthStream(depth), m_colorStream(color), m_streams(NULL), m_eViewState(DEFAULT_DISPLAY_MODE), m_pTexMap(NULL), m_grabListener(NULL), m_grabDetector(NULL)
-
+SampleViewer::SampleViewer(openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color) :
+m_device(device), m_depthStream(depth), m_colorStream(color), m_streams(NULL), m_grabListener(NULL), m_grabDetector(NULL)
 {
-	ms_self = this;
-	strncpy(m_strSampleName, strSampleName, ONI_MAX_STR);
 }
+
 SampleViewer::~SampleViewer()
 {
-	delete[] m_pTexMap;
-
-	ms_self = NULL;
-
 	if (m_streams != NULL)
 	{
-		delete []m_streams;
+		delete[] m_streams;
 	}
 	
 	if(m_grabDetector!=NULL)
@@ -113,32 +96,15 @@ openni::Status SampleViewer::Init()
 			return openni::STATUS_ERROR;
 		}
 	}
-	else if (m_depthStream.isValid())
-	{
-		depthVideoMode = m_depthStream.getVideoMode();
-		m_width = depthVideoMode.getResolutionX();
-		m_height = depthVideoMode.getResolutionY();
-	}
-	else if (m_colorStream.isValid())
-	{
-		colorVideoMode = m_colorStream.getVideoMode();
-		m_width = colorVideoMode.getResolutionX();
-		m_height = colorVideoMode.getResolutionY();
-	}
 	else
 	{
-		printf("Error - expects at least one of the streams to be valid...\n");
+		printf("Error - expects both streams to be valid...\n"); // it can work with depth only though... 
 		return openni::STATUS_ERROR;
 	}
 
 	m_streams = new openni::VideoStream*[2];
 	m_streams[0] = &m_depthStream;
 	m_streams[1] = &m_colorStream;
-
-	// Texture map init
-	m_nTexMapX = MIN_CHUNKS_SIZE(m_width, TEXTURE_SIZE);
-	m_nTexMapY = MIN_CHUNKS_SIZE(m_height, TEXTURE_SIZE);
-	m_pTexMap = new openni::RGB888Pixel[m_nTexMapX * m_nTexMapY];
 
 	
 	if(InitGrabDetector() != openni::STATUS_OK)
@@ -334,10 +300,6 @@ void SampleViewer::DrawDetectorInfo(void)
 		ofCircle(handX,handY, 10);
 		ofPopStyle();
 	}
-	//If hand position is not valid we just write its last status
-	else
-	{
-	}
 
 }
 
@@ -445,13 +407,5 @@ Json::Value SampleViewer::getStatusJson()
 		}
 	}
 
-	return track;
-
-
-		
+	return track;		
 }
-
-
-
-
-
