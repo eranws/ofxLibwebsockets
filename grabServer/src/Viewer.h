@@ -66,10 +66,8 @@ private:
 	static void GLUTDisplay();
 	static void GLUTKeyboard(unsigned char key, int x, int y);
 
-	void DrawHandPoint(float x, float y, float z);
-	void DrawHandStatus(PSLabs::IGrabEventListener::GrabEventType status, float handX, float handY, float handZ );
+
 	void ProcessGrabEvent( PSLabs::IGrabEventListener::GrabEventType Type );
-	void DrawExposureStatus(void);
 	void UpdateAlgorithm(void);
 	void UpdateNiTETrackers( bool* handLost, bool* gestureComplete, bool* handTracked, float* handX, float* handY, float* handZ );
 	void DrawDetectorInfo(void);

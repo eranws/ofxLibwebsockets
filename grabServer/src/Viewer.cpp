@@ -104,7 +104,6 @@ openni::Status SampleViewer::Init()
 			
 			//t.allocate(depthWidth, depthHeight, GL_LUMINANCE16);
 			t.allocate(depthWidth, depthHeight, GL_RGB);
-			printf("allocated 105:");
 		}
 		else
 		{
@@ -285,74 +284,38 @@ void SampleViewer::draw()
 		calculateHistogram(m_pDepthHist, MAX_DEPTH, m_depthFrame);
 	}
 
-	ofRect(100, 100, 50, 200);
-
-
-	const openni::DepthPixel* pDepthRow = (const openni::DepthPixel*)m_depthFrame.getData();
-	const openni::RGB888Pixel* pImageRow = (const openni::RGB888Pixel*)m_colorFrame.getData();
-	
-	const unsigned char* p = (const unsigned char* )pImageRow;
-
-	//t.loadData(pDepthRow, 640, 480, GL_LUMINANCE16);
-	t.loadData(p, 640, 480, GL_RGB);
-	t.draw(200,200);
-
-	memset(m_pTexMap, 0, m_nTexMapX*m_nTexMapY*sizeof(openni::RGB888Pixel));
-
-	// check if we need to draw image frame to texture
-	if ((m_eViewState == DISPLAY_MODE_OVERLAY ||
-		m_eViewState == DISPLAY_MODE_IMAGE) && m_colorFrame.isValid())
+	if (m_colorFrame.isValid())
 	{
-		openni::RGB888Pixel* pTexRow = m_pTexMap + m_colorFrame.getCropOriginY() * m_nTexMapX;
-		int rowSize = m_colorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel);
+		const openni::RGB888Pixel* pImageRow = (const openni::RGB888Pixel*)m_colorFrame.getData();
+		const unsigned char* p = (const unsigned char* )pImageRow;
 
-		for (int y = 0; y < m_colorFrame.getHeight(); ++y)
-		{
-			const openni::RGB888Pixel* pImage = pImageRow;
-			openni::RGB888Pixel* pTex = pTexRow + m_colorFrame.getCropOriginX();
-
-			for (int x = 0; x < m_colorFrame.getWidth(); ++x, ++pImage, ++pTex)
-			{
-				*pTex = *pImage;
-			}
-
-			pImageRow += rowSize;
-			pTexRow += m_nTexMapX;
-		}
+		//t.loadData(pDepthRow, 640, 480, GL_LUMINANCE16);
+		t.loadData(p, t.getWidth(), t.getHeight(), GL_RGB);	
+		t.draw(0,0);
 	}
-	
-	// check if we need to draw depth frame to texture
-	if ((m_eViewState == DISPLAY_MODE_OVERLAY ||
-		m_eViewState == DISPLAY_MODE_DEPTH) && m_depthFrame.isValid())
+
+	if (m_depthFrame.isValid())
 	{
 		const openni::DepthPixel* pDepthRow = (const openni::DepthPixel*)m_depthFrame.getData();
-		openni::RGB888Pixel* pTexRow = m_pTexMap + m_depthFrame.getCropOriginY() * m_nTexMapX;
-		int rowSize = m_depthFrame.getStrideInBytes() / sizeof(openni::DepthPixel);
 
-		for (int y = 0; y < m_depthFrame.getHeight(); ++y)
+		for (int i = 0; i < m_depthFrame.getHeight() * m_depthFrame.getWidth(); i++)
 		{
-			const openni::DepthPixel* pDepth = pDepthRow;
-			openni::RGB888Pixel* pTex = pTexRow + m_depthFrame.getCropOriginX();
-
-			for (int x = 0; x < m_depthFrame.getWidth(); ++x, ++pDepth, ++pTex)
+			openni::DepthPixel dp = pDepthRow[i];
+			if (pDepthRow[i] != 0)
 			{
-				if (*pDepth != 0)
-				{
-					int nHistValue = m_pDepthHist[*pDepth];
-					pTex->r = nHistValue;
-					pTex->g = nHistValue;
-					pTex->b = 0;
-				}
+				int nHistValue = m_pDepthHist[dp];
+				//pTex->r = nHistValue;
+				//pTex->g = nHistValue;
+				//pTex->b = 0;
 			}
-
-			pDepthRow += rowSize;
-			pTexRow += m_nTexMapX;
-		}
+		}	
 	}
+
 	DrawDetectorInfo();
 }
 
 //This function draws the detector information - the hand point/status and exposure status
+// todo split
 void SampleViewer::DrawDetectorInfo(void)
 {
 	if(m_grabDetector == NULL)
@@ -365,64 +328,19 @@ void SampleViewer::DrawDetectorInfo(void)
 	if(m_grabDetector->GetHandPosition(&handX,&handY,&handZ) == openni::STATUS_OK)
 	{
 		openni::CoordinateConverter::convertWorldToDepth(m_depthStream, handX, handY, handZ, &handX, &handY, &handZ);
-		DrawHandPoint(handX,handY,handZ);
-		DrawHandStatus(grabStatus.Type, handX,handY,handZ);
+
+		ofPushStyle();
+		ofSetColor(grabStatus.Type == PSLabs::IGrabEventListener::GRAB_EVENT ? ofColor::green : ofColor::red); //todo: isGrab
+		ofCircle(handX,handY, 10);
+		ofPopStyle();
 	}
 	//If hand position is not valid we just write its last status
 	else
 	{
-		DrawHandStatus(grabStatus.Type, 0,36,0);
 	}
 
-	DrawExposureStatus();
 }
 
-void SampleViewer::DrawHandStatus( PSLabs::IGrabEventListener::GrabEventType status, float handX, float handY, float handZ )
-{
-	handX *= GL_WIN_SIZE_X / m_width;
-	handY *= GL_WIN_SIZE_Y / m_height;
-
-	/*
-	glColor3f(0.0f, 0.0f, 1.0f);
-	glRasterPos2f(handX, handY);
-
-	if(status == PSLabs::IGrabEventListener::GRAB_EVENT)
-		glPrintString(GLUT_BITMAP_HELVETICA_18, "GRAB");
-	else if(status == PSLabs::IGrabEventListener::RELEASE_EVENT)
-		glPrintString(GLUT_BITMAP_HELVETICA_18, "RELEASE");
-	else if(status == PSLabs::IGrabEventListener::NO_EVENT)
-		glPrintString(GLUT_BITMAP_HELVETICA_18, "NO EVENT");
-		*/
-}
-
-void SampleViewer::DrawExposureStatus(void)
-{
-//	if(m_optimalExposure)
-//		glColor3f(0.0f, 1.0f, 0.0f);
-//	else
-	//	glColor3f(1.0f, 0.0f, 0.0f);
-
-//	glRasterPos2i(0, 18);
-//	glPrintString(GLUT_BITMAP_HELVETICA_18, "Optimal Exposure");
-}
-
-
-void SampleViewer::DrawHandPoint(float x, float y, float z)
-{
-	
-	x *= GL_WIN_SIZE_X / m_width;
-	y *= GL_WIN_SIZE_Y / m_height;
-
-	/*
-	glColor3f(0.0f,1.0f,0.0f);
-	glPointSize(12);
-	
-	glBegin(GL_POINTS);
-	glVertex2f(x,y);
-	glEnd();
-	*/
-
-}
 
 /*
 void SampleViewer::OnKey(unsigned char key, int, int)
