@@ -101,6 +101,10 @@ openni::Status SampleViewer::Init()
 		{
 			m_width = depthWidth;
 			m_height = depthHeight;
+			
+			//t.allocate(depthWidth, depthHeight, GL_LUMINANCE16);
+			t.allocate(depthWidth, depthHeight, GL_RGB);
+			printf("allocated 105:");
 		}
 		else
 		{
@@ -189,27 +193,36 @@ void SampleViewer::UpdateNiTETrackers( bool* handLost, bool* gestureComplete, bo
 	const nite::Array<nite::HandData>& hands= handFrame.getHands();
 	for (int i = 0; i < hands.getSize(); ++i)
 	{
-		const nite::HandData& user = hands[i];
+		const nite::HandData& hand = hands[i];
+		Json::Value handJson;
+		nite::HandId id = hand.getId();
+		handJson["id"] = id;
 
-		if (!user.isTracking())
+		if (hand.isTracking())
 		{
-			printf("Lost hand %d\n", user.getId());
-			nite::HandId id = user.getId();
-			*handLost = true;
-		}
-		else
-		{
-			if (user.isNew())
+			if (hand.isNew())
 			{
-				printf("Found hand %d\n", user.getId());
+				printf("Found hand %d\n", id);
 			}
+
+			handJson["pos"].append(1);
+			handJson["pos"].append(2);
+			handJson["pos"].append(3);
+
 
 			//Update grab detector
 			*handTracked = true;
-			*handX = user.getPosition().x;
-			*handY = user.getPosition().y;
-			*handZ = user.getPosition().z;
+			*handX = hand.getPosition().x;
+			*handY = hand.getPosition().y;
+			*handZ = hand.getPosition().z;
 		}
+		else
+		{
+			printf("Lost hand %d\n", id);
+			*handLost = true;
+		}
+
+
 	}
 }
 
@@ -242,6 +255,8 @@ void SampleViewer::UpdateAlgorithm(void)
 
 void SampleViewer::update()
 {
+	statusJson.clear();
+
 	int changedIndex = 0;
 	openni::Status rc = openni::STATUS_OK;
 	
@@ -270,13 +285,24 @@ void SampleViewer::draw()
 		calculateHistogram(m_pDepthHist, MAX_DEPTH, m_depthFrame);
 	}
 
+	ofRect(100, 100, 50, 200);
+
+
+	const openni::DepthPixel* pDepthRow = (const openni::DepthPixel*)m_depthFrame.getData();
+	const openni::RGB888Pixel* pImageRow = (const openni::RGB888Pixel*)m_colorFrame.getData();
+	
+	const unsigned char* p = (const unsigned char* )pImageRow;
+
+	//t.loadData(pDepthRow, 640, 480, GL_LUMINANCE16);
+	t.loadData(p, 640, 480, GL_RGB);
+	t.draw(200,200);
+
 	memset(m_pTexMap, 0, m_nTexMapX*m_nTexMapY*sizeof(openni::RGB888Pixel));
 
 	// check if we need to draw image frame to texture
 	if ((m_eViewState == DISPLAY_MODE_OVERLAY ||
 		m_eViewState == DISPLAY_MODE_IMAGE) && m_colorFrame.isValid())
 	{
-		const openni::RGB888Pixel* pImageRow = (const openni::RGB888Pixel*)m_colorFrame.getData();
 		openni::RGB888Pixel* pTexRow = m_pTexMap + m_colorFrame.getCropOriginY() * m_nTexMapX;
 		int rowSize = m_colorFrame.getStrideInBytes() / sizeof(openni::RGB888Pixel);
 
@@ -493,6 +519,10 @@ Json::Value SampleViewer::getStatusJson()
 			track["screenY"] = screenY;
 
 			track["type"] = grabStatus.Type;
+
+			track["pos"].append(1);
+			track["pos"].append(2);
+			track["pos"].append(3);
 
 		}
 	}

@@ -3,6 +3,8 @@
 
 #include <OpenNI.h>
 #include <Nite.h>
+
+#include "ofMain.h"
 #include "GrabDetector/GrabDetector.h"
 #include "json.h"
 
@@ -90,6 +92,10 @@ private:
 	nite::HandId m_lastHandID;
 	bool toExit;
 	bool m_optimalExposure;
+
+	Json::Value statusJson;
+	ofTexture t;
+
 
 };
 
