@@ -81,7 +81,7 @@ openni::Status SampleViewer::Init()
 			m_height = depthHeight;
 			
 			//t.allocate(depthWidth, depthHeight, GL_LUMINANCE16);
-			t.allocate(depthWidth, depthHeight, GL_RGB);
+			texture.allocate(depthWidth, depthHeight, GL_RGB);
 		}
 		else
 		{
@@ -229,7 +229,14 @@ void SampleViewer::update()
 	}
 	m_depthStream.readFrame(&m_depthFrame);
 	if(m_colorStream.isValid())
+	{
 		m_colorStream.readFrame(&m_colorFrame);
+		const openni::RGB888Pixel* pImageRow = (const openni::RGB888Pixel*)m_colorFrame.getData();
+		const unsigned char* p = (const unsigned char* )pImageRow;
+
+		//t.loadData(pDepthRow, 640, 480, GL_LUMINANCE16);
+		texture.loadData(p, texture.getWidth(), texture.getHeight(), GL_RGB);	
+	}
 
 
 	//Update algorithm
@@ -247,12 +254,7 @@ void SampleViewer::draw()
 
 	if (m_colorFrame.isValid())
 	{
-		const openni::RGB888Pixel* pImageRow = (const openni::RGB888Pixel*)m_colorFrame.getData();
-		const unsigned char* p = (const unsigned char* )pImageRow;
-
-		//t.loadData(pDepthRow, 640, 480, GL_LUMINANCE16);
-		t.loadData(p, t.getWidth(), t.getHeight(), GL_RGB);	
-		t.draw(0,0);
+		texture.draw(0,0);
 	}
 
 	if (m_depthFrame.isValid())

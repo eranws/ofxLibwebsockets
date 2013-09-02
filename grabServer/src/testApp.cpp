@@ -37,6 +37,14 @@ void testApp::update(){
 		std::string s = writer.write(v);
 		server.send(s);
 	}
+
+//	if (ofGetFrameNum() % 10 == 0)
+	{
+		ofPixels pix;
+		grab.sampleViewer->texture.readToPixels(pix);
+		pix.resize(160, 120, OF_INTERPOLATE_NEAREST_NEIGHBOR);
+		server.sendBinary(pix.getPixels(), pix.size());
+	}
 }
 
 //--------------------------------------------------------------

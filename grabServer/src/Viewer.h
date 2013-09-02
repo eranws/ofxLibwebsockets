@@ -23,6 +23,7 @@ public:
 	void draw();
 
 	Json::Value getStatusJson();
+	ofTexture texture;
 
 
 protected:
@@ -58,7 +59,6 @@ private:
 	bool m_optimalExposure;
 
 	Json::Value statusJson;
-	ofTexture t;
 
 
 };
