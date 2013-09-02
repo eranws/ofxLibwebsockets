@@ -64,6 +64,8 @@ function setupSocket(){
 				jsonData = JSON.parse(msg.data);
 				appUpdate(jsonData);
 			} catch( e ){
+				console.log(e);				//$("#err_status").text(e.toString()).css("color", "red");
+
 				//$("#err_status").text(e.toString()).css("color", "red");
 				//jsonData = messageEvent.data;
 			}

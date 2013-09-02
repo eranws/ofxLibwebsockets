@@ -380,8 +380,8 @@ Json::Value SampleViewer::getStatusJson()
 			openni::CoordinateConverter::convertWorldToDepth(m_depthStream, handX, handY, handZ, &cameraX, &cameraY, &cameraZ);
 
 			Json::Value cam;
-			cam.append(cameraX);
-			cam.append(cameraY);
+			cam.append(cameraX / m_depthFrame.getWidth());
+			cam.append(cameraY / m_depthFrame.getHeight());
 	
 			position["cam"] = cam;
 
