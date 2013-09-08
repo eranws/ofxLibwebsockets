@@ -23,7 +23,7 @@ public:
 	void draw();
 
 	Json::Value getStatusJson();
-	ofTexture t;
+	ofTexture texture;
 
 
 protected:

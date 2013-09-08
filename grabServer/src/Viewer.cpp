@@ -254,7 +254,7 @@ void SampleViewer::draw()
 
 	if (m_colorFrame.isValid())
 	{
-		texture.draw(0,0);
+		texture.draw(0,0,0);
 	}
 
 	if (m_depthFrame.isValid())
@@ -294,7 +294,7 @@ void SampleViewer::DrawDetectorInfo(void)
 
 		ofPushStyle();
 		ofSetColor(grabStatus.Type == PSLabs::IGrabEventListener::GRAB_EVENT ? ofColor::green : ofColor::red); //todo: isGrab
-		ofCircle(handX,handY, 10);
+		ofCircle(handX,handY, -1, 10);
 		ofPopStyle();
 	}
 

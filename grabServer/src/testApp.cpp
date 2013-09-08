@@ -22,6 +22,7 @@ void testApp::setup(){
     server.addListener(this);
     
 	grab.setupOpenNI();
+	toSendVideo = false;
 
     ofBackground(0);
     ofSetFrameRate(60);
@@ -39,6 +40,7 @@ void testApp::update(){
 	}
 
 //	if (ofGetFrameNum() % 10 == 0)
+	if (toSendVideo)
 	{
 		ofPixels pix;
 		grab.sampleViewer->texture.readToPixels(pix);
@@ -57,7 +59,19 @@ void testApp::draw(){
     } else {
         ofDrawBitmapString("WebSocket setup failed :(", 20,20);
     }
-    
+
+	if (toSendVideo)
+	{
+		ofSetColor(ofColor::green);
+	}
+	else
+	{
+		ofSetColor(ofColor::red);
+	}
+
+	string stat = toSendVideo ? "Y":"n";
+    ofDrawBitmapString("Send [v]ideo: " + stat, 20, 60);  
+
     int x = 20;
     int y = 100;
     
@@ -78,7 +92,7 @@ void testApp::draw(){
 
 	ofPushMatrix();
 	float f = 1.f; //scale
-	ofTranslate(ofGetWindowWidth() - grab.sampleViewer->t.getWidth() * f, ofGetWindowHeight() - grab.sampleViewer->t.getHeight() * f);
+	ofTranslate(ofGetWindowWidth() - grab.sampleViewer->texture.getWidth() * f, ofGetWindowHeight() - grab.sampleViewer->texture.getHeight() * f);
 	ofScale(f, f);
 	grab.draw();
 	ofPopMatrix();
@@ -129,21 +143,12 @@ void testApp::onBroadcast( ofxLibwebsockets::Event& args ){
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key){
-    // do some typing!
-    if ( key != OF_KEY_RETURN ){
-        if ( key == OF_KEY_BACKSPACE ){
-            if ( toSend.length() > 0 ){
-                toSend.erase(toSend.end()-1);
-            }
-        } else {
-            toSend += key;
-        }
-    } else {
-        // send to all clients
-        server.send( toSend );
-        messages.push_back("Sent: '" + toSend + "' to "+ ofToString(server.getConnections().size())+" websockets" );
-        toSend = "";
-    }
+ switch (key)
+ {
+ case 'v': toSendVideo = !toSendVideo; break;
+ default: break;
+ }
+
 }
 
 //--------------------------------------------------------------

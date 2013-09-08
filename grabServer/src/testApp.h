@@ -26,6 +26,7 @@ class testApp : public ofBaseApp{
 		
         ofxLibwebsockets::Server server;
 		ofxGrab grab;
+		bool toSendVideo;
 
         bool bConnected;
     
