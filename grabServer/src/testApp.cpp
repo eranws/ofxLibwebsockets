@@ -76,7 +76,12 @@ void testApp::draw(){
     ofSetColor(255);
     ofDrawBitmapString(toSend, x, ofGetHeight() - 40);
 
+	ofPushMatrix();
+	float f = 1.f; //scale
+	ofTranslate(ofGetWindowWidth() - grab.sampleViewer->t.getWidth() * f, ofGetWindowHeight() - grab.sampleViewer->t.getHeight() * f);
+	ofScale(f, f);
 	grab.draw();
+	ofPopMatrix();
 
 }
 
