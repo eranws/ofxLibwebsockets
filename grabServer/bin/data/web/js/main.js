@@ -1,40 +1,14 @@
 var socket;
-
-var messageDiv;
 var statusDiv;
-var button;
-var textField;
 
 $(document).ready( function() {
 	setupSocket();
 	
-	document.getElementById("brow").textContent = " " + BrowserDetect.browser + " "
-		+ BrowserDetect.version +" " + BrowserDetect.OS +" ";
-
-	messageDiv = document.getElementById("messages");
+	document.getElementById("brow").textContent = " " + BrowserDetect.browser + " " + BrowserDetect.version +" " + BrowserDetect.OS +" ";
 	statusDiv = document.getElementById("status");
 
-	//setup message sending button
-	message = document.getElementById("message");
-	button = document.getElementById("button");
-
-	// send the form when you press enter 
-	// or when you press the button
-	button.onclick = function(e){
-		sendMessageForm();
-	};
-	$("#message").keyup(function(event){
-    	if(event.keyCode == 13){
-    		sendMessageForm()
-    	}
-    })
 });
 
-// send value from text input
-function sendMessageForm(){
-	socket.send(message.value);
-	message.value = "";
-}
 
 // setup web socket
 function setupSocket(){
@@ -74,9 +48,7 @@ function setupSocket(){
 					jsonData = JSON.parse(msg.data);
 					appUpdate(jsonData);
 				} catch( e ){
-					console.log(e);				//$("#err_status").text(e.toString()).css("color", "red");
-					//$("#err_status").text(e.toString()).css("color", "red");
-					//jsonData = messageEvent.data;
+					console.log(e);
 				}
 			}
 		}
