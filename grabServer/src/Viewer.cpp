@@ -7,7 +7,6 @@
 
 #include "GrabDetector\OniSampleUtilities.h"
 
-#include <opencv2\opencv.hpp>
 
 SampleViewer::SampleViewer(openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color) :
 m_device(device), m_depthStream(depth), m_colorStream(color), m_streams(NULL)
@@ -65,7 +64,7 @@ openni::Status SampleViewer::Init()
 			m_height = depthHeight;
 			
 			//t.allocate(depthWidth, depthHeight, GL_LUMINANCE16);
-			texture.allocate(depthWidth, depthHeight, GL_RGB);
+			colorTexture.allocate(depthWidth, depthHeight, GL_RGB);
 		}
 		else
 		{
@@ -87,8 +86,8 @@ openni::Status SampleViewer::Init()
 
 	
 
-	if(InitNiTE() != openni::STATUS_OK)
-		return openni::STATUS_ERROR;
+//	if(InitNiTE() != openni::STATUS_OK)
+//		return openni::STATUS_ERROR;
 
 	m_optimalExposure = false;
 
@@ -184,13 +183,25 @@ void SampleViewer::update()
 		return;
 	}
 	m_depthStream.readFrame(&m_depthFrame);
-	void* dp = (void*) m_depthFrame.getData();
 
-	cv::Mat m(m_depthFrame.getHeight(), m_depthFrame.getWidth(), CV_16UC1, dp);
 	
-#define show(x) cv::imshow(#x, x);
-	show(m);
 
+// Begin cv stuff
+	#define SHOW_ALL 0
+	#define SHOW_ALL_2 1
+#if SHOW_ALL
+	#define show(x) cv::imshow(#x, x);
+#else
+	#define show(x)
+#endif
+
+#if SHOW_ALL_2
+	#define show2(x) cv::imshow(#x, x);
+#else
+	#define show2(x)
+#endif
+	
+	processDepth();
 
 	if(m_colorStream.isValid())
 	{
@@ -199,7 +210,7 @@ void SampleViewer::update()
 		const unsigned char* p = (const unsigned char* )pImageRow;
 
 		//t.loadData(pDepthRow, 640, 480, GL_LUMINANCE16);
-		texture.loadData(p, texture.getWidth(), texture.getHeight(), GL_RGB);	
+		colorTexture.loadData(p, colorTexture.getWidth(), colorTexture.getHeight(), GL_RGB);	
 	}
 }
 
@@ -213,7 +224,7 @@ void SampleViewer::draw()
 
 	if (m_colorFrame.isValid())
 	{
-		texture.draw(0,0,0);
+		colorTexture.draw(0,0,0);
 	}
 
 	if (m_depthFrame.isValid())
@@ -330,4 +341,116 @@ Json::Value SampleViewer::getStatusJson()
 	}
 
 	return track;		
+}
+
+void SampleViewer::processDepth()
+{
+void* dp = (void*) m_depthFrame.getData();
+	const cv::Mat m(m_depthFrame.getHeight(), m_depthFrame.getWidth(), CV_16UC1, dp);
+
+	
+	m.copyTo(prevDepth);
+
+
+	depthHistory.push_front(cv::Mat());
+	m.copyTo(depthHistory.front());
+	if (depthHistory.size() < depthHistorySize)
+		return;
+	else
+		depthHistory.pop_back();
+
+
+	cv::Mat dmask = depthHistory[0] > 0 & depthHistory[1] > 0 & depthHistory[2] > 0;
+
+
+	cv::Mat diff0;
+	cv::subtract(depthHistory[0], depthHistory[1], diff0, dmask, CV_16S);
+
+	cv::Mat diff1;
+	cv::subtract(depthHistory[1], depthHistory[2], diff1, dmask, CV_16S);
+
+	cv::Mat ddiff;
+	cv::subtract(diff0, diff1, ddiff, dmask, CV_16S);
+
+	//cv::Mat diffRgb(m.rows, m.cols, CV_8UC3);
+	cv::Mat r = diff0 > 3 & diff0 < 10;
+	cv::Mat g = diff0 < -3 & diff0 > -10;
+	cv::Mat b = cv::abs(ddiff) < 2;
+
+	cv::Mat rgb[] = {b, g, r};
+
+	cv::Mat rgbOut;
+	cv::merge(rgb, 3, rgbOut);
+	show2(rgbOut);
+
+	show2(dmask);
+	cv::waitKey(1);
+
+
+
+	show(m);
+
+	cv::Mat m8;
+	m.convertTo(m8, CV_8UC1, 1.0/16);
+
+	show(m8);
+	cv::Mat u8 = (m8 < 50 & m8 > 0);
+
+	int sz = 11;
+	cv::Mat element = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(sz,sz));
+    morphologyEx(u8, u8, CV_MOP_CLOSE, element);
+	show(u8);
+
+	cv::Mat kx, ky;
+	cv::getDerivKernels(kx, ky, 1, 1, 5);
+
+	cv::Mat dm;
+	cv::sepFilter2D(m, dm, CV_8UC1, kx, ky);
+	show(dm);
+
+	cv::Mat dst(m8.rows, m8.cols, CV_8UC3);
+	dst.setTo(0);
+
+	std::vector<std::vector<cv::Point> > contours;
+	std::vector<cv::Vec4i> hierarchy;
+
+	cv::findContours(u8.clone(), contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE );
+
+	//approximate with lines
+	for( size_t k = 0; k < contours.size(); k++ )
+	{
+		//double epsilon = 15;//ofMap(com.z, 750, 2000, 15, 3, true); //higher => smoother. TODO: choose as a function of CoM distance (closer=>smaller)
+		//approxPolyDP(cv::Mat(contours[k]), contours[k], epsilon, true); 
+	}
+
+	if( !contours.empty() && !hierarchy.empty() )
+	{
+		// iterate through all the top-level contours,
+		for(int ci = 0; ci < hierarchy.size(); ci++)
+		{
+
+			vector<cv::Point>& contour = contours[ci];
+			if(cv::contourArea(contour) < 100)
+			{
+				continue;
+			}
+			
+			cv::Moments myMoments = cv::moments(contour, true);
+			float x = (myMoments.m10 / myMoments.m00);
+			float y = (myMoments.m01 / myMoments.m00);
+
+			cv::drawContours( dst, contours, ci, CV_RGB(255, 255 * x / u8.cols, 255 * y / u8.rows), -1, 8, hierarchy );
+			cv::circle(dst, cv::Point(x, y), 5, CV_RGB(255, 255, 255), -1);
+
+			for (int i = 1; i < contours[ci].size();i++)
+			{
+				//check if peak
+				cv::Point2f vec1 = contour[i - 1] - contour[i];
+				cv::Point2f vec2 = contour[(i + 1) % contour.size()] - contour[i];
+			}
+		}
+	}
+
+	show2(dst);
+
 }

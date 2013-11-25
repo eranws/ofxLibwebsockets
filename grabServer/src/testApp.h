@@ -24,7 +24,35 @@ class testApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 		
+		class MockServer : public ofxLibwebsockets::Server
+		{
+		public:
+			bool setup( int _port = 80, bool bUseSSL = false ){return false;}
+			bool setup( ofxLibwebsockets::ServerOptions options ){return false;}
+
+			void broadcast( string message ){}
+			void send( string message ){}
+
+	        template <class T> 
+		    void sendBinary( T& image ){}
+  			void sendBinary( unsigned char * data, int size ){}
+			void send( string message, string ip ){}
+		
+			template<class T>
+		    void addListener(T * app){}
+        
+			template<class T>
+			void removeListener(T * app){}
+        
+        
+			int     getPort(){return 0;}
+			string  getProtocol(){return "Mock";}
+			bool    usingSSL(){return false;}
+		};
+
         ofxLibwebsockets::Server server;
+		//MockServer server;
+		
 		ofxGrab grab;
 		bool toSendVideo;
 

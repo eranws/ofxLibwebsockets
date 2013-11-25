@@ -43,7 +43,7 @@ void testApp::update(){
 	if (toSendVideo)
 	{
 		ofPixels pix;
-		grab.sampleViewer->texture.readToPixels(pix);
+		grab.sampleViewer->getColorTexture().readToPixels(pix);
 		pix.resize(160, 120, OF_INTERPOLATE_NEAREST_NEIGHBOR);
 		server.sendBinary(pix.getPixels(), pix.size());
 	}
@@ -92,7 +92,7 @@ void testApp::draw(){
 
 	ofPushMatrix();
 	float f = 1.f; //scale
-	ofTranslate(ofGetWindowWidth() - grab.sampleViewer->texture.getWidth() * f, ofGetWindowHeight() - grab.sampleViewer->texture.getHeight() * f);
+	ofTranslate(ofGetWindowWidth() - grab.sampleViewer->getColorTexture().getWidth() * f, ofGetWindowHeight() - grab.sampleViewer->getColorTexture().getHeight() * f);
 	ofScale(f, f);
 	grab.draw();
 	ofPopMatrix();

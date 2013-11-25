@@ -3,6 +3,7 @@
 
 #include <OpenNI.h>
 #include <Nite.h>
+#include <opencv2\opencv.hpp>
 
 #include "ofMain.h"
 
@@ -23,8 +24,7 @@ public:
 	void draw();
 
 	Json::Value getStatusJson();
-	ofTexture texture;
-
+	ofTexture getColorTexture() {return colorTexture;}
 
 protected:
 
@@ -42,7 +42,9 @@ private:
 
 	void UpdateNiTETrackers( bool* handLost, bool* gestureComplete, bool* handTracked, float* handX, float* handY, float* handZ );
 	openni::Status InitNiTE(void);
-	
+
+	void processDepth();
+
 	float			m_pDepthHist[MAX_DEPTH];
 
 	int			m_width;
@@ -55,6 +57,12 @@ private:
 	bool m_optimalExposure;
 
 	Json::Value statusJson;
+
+	static const unsigned int depthHistorySize = 4;
+	std::deque<cv::Mat> depthHistory;
+	cv::Mat prevDepth;
+
+	ofTexture colorTexture;
 
 
 };
