@@ -7,9 +7,8 @@
 
 #include "GrabDetector\OniSampleUtilities.h"
 
-
 SampleViewer::SampleViewer(openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color) :
-m_device(device), m_depthStream(depth), m_colorStream(color), m_streams(NULL), m_grabDetector(NULL)
+m_device(device), m_depthStream(depth), m_colorStream(color), m_streams(NULL)
 {
 }
 
@@ -20,26 +19,9 @@ SampleViewer::~SampleViewer()
 		delete[] m_streams;
 	}
 	
-	if(m_grabDetector!=NULL)
-	{
-		PSLabs::ReleaseGrabDetector(m_grabDetector);
-	}
 
 }
 
-//Initializes new GrabDetector object and events
-openni::Status SampleViewer::InitGrabDetector( void )
-{
-	//Create object
-	m_grabDetector = PSLabs::CreateGrabDetector(m_device);
-	if(m_grabDetector == NULL || m_grabDetector->GetLastEvent(NULL) != openni::STATUS_OK)
-	{
-		printf("Error - cannot initialize grab detector: status %d \n", m_grabDetector->GetLastEvent(NULL));
-		return openni::STATUS_ERROR;
-	}
-
-	return openni::STATUS_OK;
-}
 
 openni::Status SampleViewer::InitNiTE( void )
 {
@@ -102,8 +84,6 @@ openni::Status SampleViewer::Init()
 	m_streams[1] = &m_colorStream;
 
 	
-	if(InitGrabDetector() != openni::STATUS_OK)
-		return openni::STATUS_ERROR;
 
 	if(InitNiTE() != openni::STATUS_OK)
 		return openni::STATUS_ERROR;
@@ -187,32 +167,6 @@ void SampleViewer::UpdateNiTETrackers( bool* handLost, bool* gestureComplete, bo
 }
 
 
-//This function updates the algorithms after a new frame has been read
-void SampleViewer::UpdateAlgorithm(void)
-{
-	bool handLost = false, gestureComplete = false, handTracked = false;
-	float handX, handY, handZ;
-
-	//Update NiTE trackers and get their result
-	UpdateNiTETrackers(&handLost, &gestureComplete, &handTracked, &handX, &handY, &handZ);
-
-	if(m_grabDetector != NULL)
-	{
-		//If the hand is lost, we need to reset the grab detector
-		if(handLost)
-			m_grabDetector->Reset();
-		//If a gesture is just complete, or the hand is already being tracked, we have valid coordinates and can set them to the detector
-		else if(gestureComplete || handTracked)
-			m_grabDetector->SetHandPosition(handX, handY, handZ);
-
-		//Update algorithm with the newly read frames. We prefer both frames, but can work only with one
-		if(m_depthFrame.isValid() && m_colorFrame.isValid())
-			m_grabDetector->UpdateFrame(m_depthFrame, m_colorFrame);
-		else if(m_depthFrame.isValid())
-			m_grabDetector->UpdateFrame(m_depthFrame);
-	}
-}
-
 void SampleViewer::update()
 {
 	statusJson.clear();
@@ -237,11 +191,6 @@ void SampleViewer::update()
 		//t.loadData(pDepthRow, 640, 480, GL_LUMINANCE16);
 		texture.loadData(p, texture.getWidth(), texture.getHeight(), GL_RGB);	
 	}
-
-
-	//Update algorithm
-	UpdateAlgorithm();
-
 }
 
 void SampleViewer::draw()
@@ -249,7 +198,7 @@ void SampleViewer::draw()
 	//Now we draw the data
 	if (m_depthFrame.isValid())
 	{
-		calculateHistogram(m_pDepthHist, MAX_DEPTH, m_depthFrame);
+		//calculateHistogram(m_pDepthHist, MAX_DEPTH, m_depthFrame);
 	}
 
 	if (m_colorFrame.isValid())
@@ -274,29 +223,6 @@ void SampleViewer::draw()
 		}	
 	}
 
-	DrawDetectorInfo();
-}
-
-//This function draws the detector information - the hand point/status and exposure status
-// todo split
-void SampleViewer::DrawDetectorInfo(void)
-{
-	if(m_grabDetector == NULL)
-		return;
-
-	PSLabs::IGrabEventListener::EventParams grabStatus;
-	m_grabDetector->GetLastEvent(&grabStatus);
-
-	float handX,handY,handZ;
-	if(m_grabDetector->GetHandPosition(&handX,&handY,&handZ) == openni::STATUS_OK)
-	{
-		openni::CoordinateConverter::convertWorldToDepth(m_depthStream, handX, handY, handZ, &handX, &handY, &handZ);
-
-		ofPushStyle();
-		ofSetColor(grabStatus.Type == PSLabs::IGrabEventListener::GRAB_EVENT ? ofColor::green : ofColor::red); //todo: isGrab
-		ofCircle(handX,handY, -1, 10);
-		ofPopStyle();
-	}
 
 }
 
@@ -360,14 +286,12 @@ Json::Value SampleViewer::getStatusJson()
 	Json::Value track;
 
 	//add timestamp?
-
-	if(m_grabDetector != NULL)
+	//if(m_grabDetector != NULL)
 	{
-		PSLabs::IGrabEventListener::EventParams grabStatus;
-		m_grabDetector->GetLastEvent(&grabStatus);
+
 
 		float handX,handY,handZ;
-		if(m_grabDetector->GetHandPosition(&handX,&handY,&handZ) == openni::STATUS_OK)
+		//if(m_grabDetector->GetHandPosition(&handX,&handY,&handZ) == openni::STATUS_OK)
 		{
 			Json::Value position;
 
@@ -388,7 +312,7 @@ Json::Value SampleViewer::getStatusJson()
 			position["cam"] = cam;
 
 			track["position"] = position;
-			track["grab"] = grabStatus.Type == PSLabs::IGrabEventListener::GRAB_EVENT;
+			track["grab"] = 0;
 		}
 	}
 

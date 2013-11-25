@@ -5,7 +5,7 @@
 #include <Nite.h>
 
 #include "ofMain.h"
-#include "GrabDetector/GrabDetector.h"
+
 #include "json.h"
 
 #include <string>
@@ -40,10 +40,7 @@ private:
 	SampleViewer(const SampleViewer&);
 	SampleViewer& operator=(SampleViewer&);
 
-	void UpdateAlgorithm(void);
 	void UpdateNiTETrackers( bool* handLost, bool* gestureComplete, bool* handTracked, float* handX, float* handY, float* handZ );
-	void DrawDetectorInfo(void);
-	openni::Status InitGrabDetector(void);
 	openni::Status InitNiTE(void);
 	
 	float			m_pDepthHist[MAX_DEPTH];
@@ -51,7 +48,6 @@ private:
 	int			m_width;
 	int			m_height;
 
-	PSLabs::IGrabDetector* m_grabDetector;
 
 	nite::HandTracker m_handTracker;
 	nite::HandId m_lastHandID;
