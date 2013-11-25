@@ -168,12 +168,22 @@ void testApp::mouseDragged(int x, int y, int button){
 
 //--------------------------------------------------------------
 void testApp::mousePressed(int x, int y, int button){
-    string url = "http";
-    if ( server.usingSSL() ){
-        url += "s";
-    }
-    url += "://localhost:" + ofToString( server.getPort() );
-    ofLaunchBrowser(url);
+	static unsigned long long lastClick = 0;
+	const int INTERVAL = 500;
+
+	unsigned long long now = ofGetSystemTime();
+	
+	if (now - lastClick < INTERVAL) 
+	{
+	    string url = "http";
+	    if ( server.usingSSL() ){
+	        url += "s";
+		}
+		url += "://localhost:" + ofToString( server.getPort() );
+		ofLaunchBrowser(url);
+	}
+
+	lastClick = now;
 }
 
 //--------------------------------------------------------------
