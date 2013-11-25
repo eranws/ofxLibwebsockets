@@ -291,25 +291,28 @@ Json::Value SampleViewer::getStatusJson()
 
 
 		float handX,handY,handZ;
+		const float FAKE = 6.66f;
+
+
 		//if(m_grabDetector->GetHandPosition(&handX,&handY,&handZ) == openni::STATUS_OK)
 		{
 			Json::Value position;
 
 			Json::Value realPosition;
-			realPosition.append(handX);
-			realPosition.append(handY);
-			realPosition.append(handZ);
+			realPosition.append(FAKE);
+			realPosition.append(FAKE);
+			realPosition.append(FAKE);
 	
 			position["real"] = realPosition;
 
-			float cameraX,cameraY,cameraZ;
-			openni::CoordinateConverter::convertWorldToDepth(m_depthStream, handX, handY, handZ, &cameraX, &cameraY, &cameraZ);
+			//float cameraX,cameraY,cameraZ;
+			//openni::CoordinateConverter::convertWorldToDepth(m_depthStream, handX, handY, handZ, &cameraX, &cameraY, &cameraZ);
 
-			Json::Value cam;
-			cam.append(cameraX / m_depthFrame.getWidth());
-			cam.append(cameraY / m_depthFrame.getHeight());
+			//Json::Value cam;
+			//cam.append(cameraX / m_depthFrame.getWidth());
+			//cam.append(cameraY / m_depthFrame.getHeight());
 	
-			position["cam"] = cam;
+			//position["cam"] = cam;
 
 			track["position"] = position;
 			track["grab"] = 0;
