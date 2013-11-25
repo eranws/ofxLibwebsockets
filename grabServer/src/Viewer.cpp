@@ -7,6 +7,8 @@
 
 #include "GrabDetector\OniSampleUtilities.h"
 
+#include <opencv2\opencv.hpp>
+
 SampleViewer::SampleViewer(openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color) :
 m_device(device), m_depthStream(depth), m_colorStream(color), m_streams(NULL)
 {
@@ -182,6 +184,14 @@ void SampleViewer::update()
 		return;
 	}
 	m_depthStream.readFrame(&m_depthFrame);
+	void* dp = (void*) m_depthFrame.getData();
+
+	cv::Mat m(m_depthFrame.getHeight(), m_depthFrame.getWidth(), CV_16UC1, dp);
+	
+#define show(x) cv::imshow(#x, x);
+	show(m);
+
+
 	if(m_colorStream.isValid())
 	{
 		m_colorStream.readFrame(&m_colorFrame);
