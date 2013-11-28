@@ -61,6 +61,8 @@ private:
 	static const unsigned int depthHistorySize = 4;
 	std::deque<cv::Mat> depthHistory;
 	cv::Mat prevDepth;
+	cv::Mat maxM;
+	cv::Mat avgM;
 
 	ofTexture colorTexture;
 

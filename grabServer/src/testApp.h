@@ -50,8 +50,8 @@ class testApp : public ofBaseApp{
 			bool    usingSSL(){return false;}
 		};
 
-        ofxLibwebsockets::Server server;
-		//MockServer server;
+//        ofxLibwebsockets::Server server;
+		MockServer server;
 		
 		ofxGrab grab;
 		bool toSendVideo;

@@ -11,6 +11,9 @@
 SampleViewer::SampleViewer(openni::Device& device, openni::VideoStream& depth, openni::VideoStream& color) :
 m_device(device), m_depthStream(depth), m_colorStream(color), m_streams(NULL)
 {
+	maxM = cv::Mat();
+	printf("%s",maxM.empty()?"y":"n");
+
 }
 
 SampleViewer::~SampleViewer()
@@ -354,7 +357,7 @@ void* dp = (void*) m_depthFrame.getData();
 
 	depthHistory.push_front(cv::Mat());
 	m.copyTo(depthHistory.front());
-	if (depthHistory.size() < depthHistorySize)
+	if (depthHistory.size() <= depthHistorySize)
 		return;
 	else
 		depthHistory.pop_back();
@@ -376,24 +379,46 @@ void* dp = (void*) m_depthFrame.getData();
 	cv::Mat r = diff0 > 3 & diff0 < 10;
 	cv::Mat g = diff0 < -3 & diff0 > -10;
 	cv::Mat b = cv::abs(ddiff) < 2;
-
+	
 	cv::Mat rgb[] = {b, g, r};
 
 	cv::Mat rgbOut;
 	cv::merge(rgb, 3, rgbOut);
-	show2(rgbOut);
+	show(rgbOut);
 
-	show2(dmask);
-	cv::waitKey(1);
-
-
-
+	show(dmask);
+//	cv::waitKey(1);
 	show(m);
+
+	
+	if (avgM.empty())
+		avgM = m.clone();
+	avgM = (avgM * 0.1 + m * 0.9);
+	show2(avgM);
+
+	if (maxM.empty())
+		maxM = avgM.clone();
+	maxM = cv::max(avgM, maxM);
+
+	show2(maxM);
+
+	const int THR = 125;
+	const int EPS = 10;
+
+	cv::Mat awesomeMask = abs(maxM - avgM) < THR;
+
+	maxM -= EPS;
+	int ksize = 11;
+	morphologyEx(awesomeMask, awesomeMask, CV_MOP_DILATE, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(ksize,ksize)));
 
 	cv::Mat m8;
 	m.convertTo(m8, CV_8UC1, 1.0/16);
 
-	show(m8);
+	m8.setTo(0, awesomeMask);
+	morphologyEx(m8, m8, CV_MOP_ERODE, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(ksize,ksize)));
+
+	show2(m8);
+
 	cv::Mat u8 = (m8 < 50 & m8 > 0);
 
 	int sz = 11;
@@ -413,8 +438,13 @@ void* dp = (void*) m_depthFrame.getData();
 
 	std::vector<std::vector<cv::Point> > contours;
 	std::vector<cv::Vec4i> hierarchy;
+	cv::Mat contoursIn;
+	contoursIn = (~awesomeMask);
 
-	cv::findContours(u8.clone(), contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE );
+	cv::blur(contoursIn, contoursIn, cv::Size(7,3));
+	contoursIn = contoursIn > 128;
+
+	cv::findContours(contoursIn.clone(), contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE );
 
 	//approximate with lines
 	for( size_t k = 0; k < contours.size(); k++ )
