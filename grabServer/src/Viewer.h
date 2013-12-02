@@ -17,7 +17,10 @@ struct PointData
 {
 	ofVec2f p;
 	float r, score;
+	static bool isDead(PointData& p) { return (p.score < 0); }
+
 };
+
 
 
 class SampleViewer

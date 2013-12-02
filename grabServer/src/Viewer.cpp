@@ -179,10 +179,10 @@ void SampleViewer::update()
 	//reapData();
 	for (vector<PointData>::iterator it = data.begin();	it != data.end(); ++it)
 	{
-		// --it->score;
+		--it->score;
 	}
 
-	std::remove_if(data.begin(), data.end(), pred);
+	std::remove_if(data.begin(), data.end(), PointData::isDead);
 
 
 	int changedIndex = 0;
@@ -315,7 +315,6 @@ void SampleViewer::OnKey(unsigned char key, int, int)
 }
 */
 
-bool pred(PointData& p) { return (p.score < 0); }
 
 Json::Value SampleViewer::getStatusJson()
 {
