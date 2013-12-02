@@ -174,16 +174,7 @@ void SampleViewer::UpdateNiTETrackers( bool* handLost, bool* gestureComplete, bo
 void SampleViewer::update()
 {
 	statusJson.clear();
-	//data.clear();
-
-	//reapData();
-	for (vector<PointData>::iterator it = data.begin();	it != data.end(); ++it)
-	{
-		--it->score;
-	}
-
-	std::remove_if(data.begin(), data.end(), PointData::isDead);
-
+	data.clear();
 
 	int changedIndex = 0;
 	openni::Status rc = openni::STATUS_OK;
@@ -327,16 +318,16 @@ Json::Value SampleViewer::getStatusJson()
 	{
 			Json::Value position;
 
-			float wx,wy,wz;
 			
 			Json::Value cam;
 			cam.append( it->p.x / m_depthFrame.getWidth());
 			cam.append( it->p.y / m_depthFrame.getHeight());	
 			position["cam"] = cam;
 
+			float wx=0,wy=0,wz=0;
+			openni::CoordinateConverter::convertDepthToWorld(m_depthStream, it->p.x, it->p.y, it->p.z, &wx, &wy, &wz);
 
 			Json::Value realPosition;
-			openni::CoordinateConverter::convertDepthToWorld(m_depthStream, it->p.x, it->p.y, 0, &wx, &wy, &wz);
 			realPosition.append(wx);
 			realPosition.append(wy);
 			realPosition.append(wz);	
@@ -472,22 +463,20 @@ void* dp = (void*) m_depthFrame.getData();
 			float y = (myMoments.m01 / myMoments.m00);
 			float r = myMoments.m00;
 
-			PointData p;
-			p.p = ofVec2f(x,y);
-			p.r = r;
+			
 
-			p.score = 15;
-			for (int i=0; i<data.size(); i++)
-			{
-				PointData& other = data[i];
-				if (other.p.distance(p.p) < 20)
-				{
-				/*		
-					p.score++;
-					other.score--;
-				*/
-				}
-			}
+			cv::Mat medZ;
+
+			cv::medianBlur(depthHistory[0](cv::Range(y-2, y+2), cv::Range(x-2, x+2)), medZ, 5);
+			float z = cv::mean(medZ)[0];
+	
+//			float z = depthHistory[0].at<unsigned short>(int(y), int(x));
+
+			PointData p;
+			p.p = ofVec3f(x,y,z);
+			p.r = r;
+			p.score = 0;
+
 			data.push_back(p);
 
 			cv::drawContours( dst, contours, ci, CV_RGB(255, 255 * x / u8.cols, 255 * y / u8.rows), -1, 8, hierarchy );

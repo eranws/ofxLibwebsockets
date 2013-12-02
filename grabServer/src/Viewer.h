@@ -15,7 +15,7 @@
 
 struct PointData
 {
-	ofVec2f p;
+	ofVec3f p;
 	float r, score;
 	static bool isDead(PointData& p) { return (p.score < 0); }
 

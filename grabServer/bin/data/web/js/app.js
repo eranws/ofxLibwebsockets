@@ -86,8 +86,11 @@ $(document).ready( function() {
 
 function appUpdate(evt){
 //	console.log(evt);
+	if (!evt.position) return;
 	handPos = evt.position.cam;
- 	handGrab = evt.grab; 
+ 	//handGrab = evt.grab;
+ 	console.log(evt.position.real);
+
 };
 
 
