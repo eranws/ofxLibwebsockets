@@ -13,6 +13,13 @@
 
 #define MAX_DEPTH 10000
 
+struct PointData
+{
+	ofVec2f p;
+	float r, score;
+};
+
+
 class SampleViewer
 {
 public:
@@ -26,7 +33,13 @@ public:
 	Json::Value getStatusJson();
 	ofTexture getColorTexture() {return colorTexture;}
 
+	
+
+	const vector<PointData>& getData() const {return data;}
+
+
 protected:
+	vector<PointData> data;
 
 	openni::VideoFrameRef		m_depthFrame;
 	openni::VideoFrameRef		m_colorFrame;

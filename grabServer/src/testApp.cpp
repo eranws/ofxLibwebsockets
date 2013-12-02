@@ -26,6 +26,7 @@ void testApp::setup(){
 
     ofBackground(0);
     ofSetFrameRate(60);
+	ofSetCircleResolution(200);
 }
 
 //--------------------------------------------------------------
@@ -95,7 +96,28 @@ void testApp::draw(){
 	ofTranslate(ofGetWindowWidth() - grab.sampleViewer->getColorTexture().getWidth() * f, ofGetWindowHeight() - grab.sampleViewer->getColorTexture().getHeight() * f);
 	ofScale(f, f);
 	grab.draw();
+
+	const vector<PointData>& data = grab.sampleViewer->getData();
+	for (int i=0; i<data.size(); i++)
+	{
+		const PointData& p = data[i]; 
+
+		if (p.score > 10)
+		{
+			ofNoFill();
+			ofSetColor(ofColor::white);
+			ofSetLineWidth(6);
+			ofCircle(p.p, p.r / 100);
+			ofSetColor(ofColor::green);
+			ofDrawBitmapString(ofToString(p.r), p.p);
+			ofDrawBitmapString(ofToString(p.score), p.p);
+		}
+	}
+
+
 	ofPopMatrix();
+
+
 
 }
 

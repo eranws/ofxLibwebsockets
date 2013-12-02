@@ -174,6 +174,16 @@ void SampleViewer::UpdateNiTETrackers( bool* handLost, bool* gestureComplete, bo
 void SampleViewer::update()
 {
 	statusJson.clear();
+	//data.clear();
+
+	//reapData();
+	for (vector<PointData>::iterator it = data.begin();	it != data.end(); ++it)
+	{
+		// --it->score;
+	}
+
+	std::remove_if(data.begin(), data.end(), pred);
+
 
 	int changedIndex = 0;
 	openni::Status rc = openni::STATUS_OK;
@@ -304,6 +314,8 @@ void SampleViewer::OnKey(unsigned char key, int, int)
 
 }
 */
+
+bool pred(PointData& p) { return (p.score < 0); }
 
 Json::Value SampleViewer::getStatusJson()
 {
@@ -468,6 +480,25 @@ void* dp = (void*) m_depthFrame.getData();
 			cv::Moments myMoments = cv::moments(contour, true);
 			float x = (myMoments.m10 / myMoments.m00);
 			float y = (myMoments.m01 / myMoments.m00);
+			float r = myMoments.m00;
+
+			PointData p;
+			p.p = ofVec2f(x,y);
+			p.r = r;
+
+			p.score = 15;
+			for (int i=0; i<data.size(); i++)
+			{
+				PointData& other = data[i];
+				if (other.p.distance(p.p) < 20)
+				{
+				/*		
+					p.score++;
+					other.score--;
+				*/
+				}
+			}
+			data.push_back(p);
 
 			cv::drawContours( dst, contours, ci, CV_RGB(255, 255 * x / u8.cols, 255 * y / u8.rows), -1, 8, hierarchy );
 			cv::circle(dst, cv::Point(x, y), 5, CV_RGB(255, 255, 255), -1);
