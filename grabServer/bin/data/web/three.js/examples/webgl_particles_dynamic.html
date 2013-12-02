@@ -58,6 +58,9 @@
 
 		<script src="js/Detector.js"></script>
 
+<script src="js/controls/TrackballControls.js"></script>
+
+
 		<script>
 
 			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
@@ -67,7 +70,7 @@
 
 			var container;
 
-			var camera, scene, renderer, mesh, directionalLight;
+			var camera, controls, scene, renderer, mesh, directionalLight;
 
 			var parent, meshes = [], clonemeshes = [];
 
@@ -90,7 +93,23 @@
 
 				camera = new THREE.PerspectiveCamera( 20, SCREEN_WIDTH / SCREEN_HEIGHT, 1, 50000 );
 				camera.position.set( 0, 700, 7000 );
+//
+controls = new THREE.TrackballControls( camera );
 
+				controls.rotateSpeed = 1.0;
+				controls.zoomSpeed = 1.2;
+				controls.panSpeed = 0.8;
+
+				controls.noZoom = false;
+				controls.noPan = false;
+
+				controls.staticMoving = true;
+				controls.dynamicDampingFactor = 0.3;
+
+				controls.keys = [ 65, 83, 68 ];
+
+				controls.addEventListener( 'change', render );
+//
 				scene = new THREE.Scene();
 				scene.fog = new THREE.FogExp2( 0x000104, 0.0000675 );
 
@@ -209,6 +228,8 @@
 
 				camera.lookAt( scene.position );
 
+				controls.handleResize();
+
 				composer.reset();
 
 				effectFocus.uniforms[ "screenWidth" ].value = window.innerWidth;
@@ -306,6 +327,7 @@
 			function animate () {
 
 				requestAnimationFrame( animate );
+				controls.update();
 				render();
 
 			}
