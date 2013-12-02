@@ -394,13 +394,13 @@ void* dp = (void*) m_depthFrame.getData();
 	if (avgM.empty())
 		avgM = m.clone();
 	avgM = (avgM * 0.1 + m * 0.9);
-	show2(avgM);
+	show(avgM);
 
 	if (maxM.empty())
 		maxM = avgM.clone();
 	maxM = cv::max(avgM, maxM);
 
-	show2(maxM);
+	show(maxM);
 
 	const int THR = 125;
 	const int EPS = 10;
@@ -417,7 +417,7 @@ void* dp = (void*) m_depthFrame.getData();
 	m8.setTo(0, awesomeMask);
 	morphologyEx(m8, m8, CV_MOP_ERODE, cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(ksize,ksize)));
 
-	show2(m8);
+	show(m8);
 
 	cv::Mat u8 = (m8 < 50 & m8 > 0);
 
@@ -460,7 +460,7 @@ void* dp = (void*) m_depthFrame.getData();
 		{
 
 			vector<cv::Point>& contour = contours[ci];
-			if(cv::contourArea(contour) < 100)
+			if(cv::contourArea(contour) < 1000)
 			{
 				continue;
 			}
@@ -481,6 +481,6 @@ void* dp = (void*) m_depthFrame.getData();
 		}
 	}
 
-	show2(dst);
+	show(dst);
 
 }
