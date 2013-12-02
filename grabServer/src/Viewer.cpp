@@ -321,38 +321,29 @@ Json::Value SampleViewer::getStatusJson()
 {
 	Json::Value track;
 
-	//add timestamp?
-	//if(m_grabDetector != NULL)
+
+	track["timestamp"] = ofGetElapsedTimeMillis();
+
+	for (vector<PointData>::const_iterator it = data.cbegin();	it != data.cend(); ++it)	
 	{
-
-
-		float handX,handY,handZ;
-		const float FAKE = 6.66f;
-
-
-		//if(m_grabDetector->GetHandPosition(&handX,&handY,&handZ) == openni::STATUS_OK)
-		{
 			Json::Value position;
 
+			float wx,wy,wz;
+			
+			Json::Value cam;
+			cam.append( it->p.x / m_depthFrame.getWidth());
+			cam.append( it->p.y / m_depthFrame.getHeight());	
+			position["cam"] = cam;
+
+
 			Json::Value realPosition;
-			realPosition.append(FAKE);
-			realPosition.append(FAKE);
-			realPosition.append(FAKE);
-	
+			openni::CoordinateConverter::convertDepthToWorld(m_depthStream, it->p.x, it->p.y, 0, &wx, &wy, &wz);
+			realPosition.append(wx);
+			realPosition.append(wy);
+			realPosition.append(wz);	
 			position["real"] = realPosition;
 
-			//float cameraX,cameraY,cameraZ;
-			//openni::CoordinateConverter::convertWorldToDepth(m_depthStream, handX, handY, handZ, &cameraX, &cameraY, &cameraZ);
-
-			//Json::Value cam;
-			//cam.append(cameraX / m_depthFrame.getWidth());
-			//cam.append(cameraY / m_depthFrame.getHeight());
-	
-			//position["cam"] = cam;
-
 			track["position"] = position;
-			track["grab"] = 0;
-		}
 	}
 
 	return track;		
