@@ -100,6 +100,7 @@ void testApp::draw(){
 	const vector<PointData>& data = grab.sampleViewer->getData();
 	for (int i=0; i<data.size(); i++)
 	{
+		/*
 		const PointData& p = data[i]; 
 
 		ofNoFill();
@@ -113,12 +114,13 @@ void testApp::draw(){
 		ofSetColor(ofColor::green);
 		//ofDrawBitmapString(ofToString(p.r), p.p);
 		//ofDrawBitmapString(ofToString(p.score), p.p);
+		*/
 	}
 
 
 	ofPopMatrix();
 	
-	
+	ofSetColor(ofColor::white);
 	grab.sampleViewer->getOutTexture().draw(0,0);
 
 }

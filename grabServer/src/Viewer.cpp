@@ -371,15 +371,33 @@ void* dp = (void*) m_depthFrame.getData();
 	cv::subtract(diff0, diff1, ddiff, dmask, CV_16S);
 
 	//cv::Mat diffRgb(m.rows, m.cols, CV_8UC3);
-	cv::Mat r = diff0 > 3 & diff0 < 10;
-	cv::Mat g = diff0 < -3 & diff0 > -10;
-	cv::Mat b = cv::abs(ddiff) < 2;
-	
+	cv::Mat r = diff0 > 10 & diff0 < 20;
+	cv::Mat g = diff1 < -10 & diff1 > -20;
+	cv::Mat b = diff0 < -10 & diff0 > -20;
+
+	float t = (float)ofGetElapsedTimeMillis();
+	float f = 10; //millis
+	float pi = 3.1415;
+
+	float t1 = (sinf(t / f * pi /180) + 1) / 2;
+	float t2 = (sinf(t / (2*f)+0.5 * pi /180) + 1) / 2;
+	float t3 = (sinf(t / (3*f)+0.3 * pi /180) + 1) / 2;
+
+	float s1 = (t1 + 1) * 5;
+	float s2 = (t2 + 1) * 8;
+	float s3 = (t3 + 1) * 15;
+
+	cv::GaussianBlur(r, r, cv::Size(13, 13), s1, s1);
+	cv::GaussianBlur(g, g, cv::Size(13, 13), s2, s2);
+	cv::GaussianBlur(b, b, cv::Size(13, 13), s3, s3);
+
 	cv::Mat rgb[] = {b, g, r};
 
 	cv::Mat rgbOut;
 	cv::merge(rgb, 3, rgbOut);
+	rgbOut.setTo(0, ~dmask);
 	show(rgbOut);
+
 
 	show(dmask);
 //	cv::waitKey(1);
@@ -455,7 +473,7 @@ void* dp = (void*) m_depthFrame.getData();
 		{
 
 			vector<cv::Point>& contour = contours[ci];
-			if(cv::contourArea(contour) < 1000)
+			if(cv::contourArea(contour) < 500)
 			{
 				continue;
 			}
@@ -482,7 +500,7 @@ void* dp = (void*) m_depthFrame.getData();
 			data.push_back(p);
 
 			cv::drawContours( dst, contours, ci, CV_RGB(255, 255 * x / u8.cols, 255 * y / u8.rows), -1, 8, hierarchy );
-			cv::circle(dst, cv::Point(x, y), 5, CV_RGB(255, 255, 255), -1);
+			//cv::circle(dst, cv::Point(x, y), 5, CV_RGB(255, 255, 255), -1);
 
 			for (int i = 1; i < contours[ci].size();i++)
 			{
@@ -493,12 +511,42 @@ void* dp = (void*) m_depthFrame.getData();
 		}
 	}
 
+	cv::blur(dst, dst, cv::Size(25,25));
 	show(dst);
 
-	cv::Mat out;
-	cv::resize(dst, out, cv::Size(1024, 768));
 
-	outTexture.loadData(out.data, out.cols, out.rows, GL_RGB);	
+	cv::Mat maxRGB;
+	maxM.convertTo(maxRGB, CV_8UC1, 1.0/16);
+	cv::cvtColor(maxRGB, maxRGB, CV_GRAY2RGB);
+
+	float D = 6000;
+
+	float tt = sinf(t / 50 * pi /180);
+	float ttg = sinf(t / 40 * pi /180);
+	float ttb = sinf(t / 30 * pi /180);
+
+	cv::Mat dmr = dm.clone(); dmr.setTo(0, (m > tt * D) | (m < tt* D - 100));
+	cv::Mat dmg = dm.clone(); dmg.setTo(0, (m > ttg * D) | (m < ttg* D - 100));
+	cv::Mat dmb = dm.clone(); dmb.setTo(0, (m > ttb * D) | (m < ttb* D - 100));
+	
+	cv::GaussianBlur(dmr, dmr, cv::Size(5,5), 3);
+	cv::GaussianBlur(dmg, dmg, cv::Size(5,5), 3);
+	cv::GaussianBlur(dmb, dmb, cv::Size(5,5), 3);
+
+	cv::Mat dmrgb[] = {dmb, dmg, dmr};
+	cv::Mat dmrgbOut;
+	cv::merge(dmrgb, 3, dmrgbOut);
+
+
+	dst *= (0.8-tt/2);
+
+	dm *= (tt * tt * tt) / 4;
+
+	cv::cvtColor(dm, dm, CV_GRAY2RGB);
+	cv::Mat out = dst + rgbOut + dmrgbOut + dm;
+	cv::resize(out, out, cv::Size(1024, 768), 0, 0, CV_INTER_CUBIC);
+	//imshow("out", out);
+	outTexture.loadData(out.data, out.cols, out.rows, GL_BGR);	
 
 
 }
