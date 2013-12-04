@@ -68,6 +68,8 @@ openni::Status SampleViewer::Init()
 			
 			//t.allocate(depthWidth, depthHeight, GL_LUMINANCE16);
 			colorTexture.allocate(depthWidth, depthHeight, GL_RGB);
+			outTexture.allocate(1024, 768, GL_RGB);
+
 		}
 		else
 		{
@@ -310,7 +312,6 @@ void SampleViewer::OnKey(unsigned char key, int, int)
 Json::Value SampleViewer::getStatusJson()
 {
 	Json::Value track;
-
 	Json::Value positions;
 
 	track["timestamp"] = ofGetElapsedTimeMillis();
@@ -493,5 +494,11 @@ void* dp = (void*) m_depthFrame.getData();
 	}
 
 	show(dst);
+
+	cv::Mat out;
+	cv::resize(dst, out, cv::Size(1024, 768));
+
+	outTexture.loadData(out.data, out.cols, out.rows, GL_RGB);	
+
 
 }

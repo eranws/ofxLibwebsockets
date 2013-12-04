@@ -35,6 +35,7 @@ public:
 
 	Json::Value getStatusJson();
 	ofTexture getColorTexture() {return colorTexture;}
+	ofTexture getOutTexture() {return outTexture;}
 
 	
 
@@ -81,6 +82,7 @@ private:
 	cv::Mat avgM;
 
 	ofTexture colorTexture;
+	ofTexture outTexture;
 
 
 };

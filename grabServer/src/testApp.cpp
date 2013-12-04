@@ -117,8 +117,9 @@ void testApp::draw(){
 
 
 	ofPopMatrix();
-
-
+	
+	
+	grab.sampleViewer->getOutTexture().draw(0,0);
 
 }
 
@@ -169,7 +170,9 @@ void testApp::keyPressed(int key){
 	switch (key)
 	{
 	case 'v': toSendVideo = !toSendVideo; break;
+	case 'f': ofToggleFullscreen(); break;
 	default: break;
+
 	}
 
 }
