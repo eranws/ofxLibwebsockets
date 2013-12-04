@@ -311,6 +311,7 @@ Json::Value SampleViewer::getStatusJson()
 {
 	Json::Value track;
 
+	Json::Value positions;
 
 	track["timestamp"] = ofGetElapsedTimeMillis();
 
@@ -318,7 +319,6 @@ Json::Value SampleViewer::getStatusJson()
 	{
 			Json::Value position;
 
-			
 			Json::Value cam;
 			cam.append( it->p.x / m_depthFrame.getWidth());
 			cam.append( it->p.y / m_depthFrame.getHeight());	
@@ -333,9 +333,10 @@ Json::Value SampleViewer::getStatusJson()
 			realPosition.append(wz);	
 			position["real"] = realPosition;
 
-			track["position"] = position;
+			positions.append(position);
 	}
 
+	track["positions"] = positions;
 	return track;		
 }
 

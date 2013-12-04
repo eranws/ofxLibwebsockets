@@ -10,6 +10,7 @@ var	imageTimestamp = new Date().getTime();
 
 var handPos = [];
 var handGrab = false;
+var positions = [];
 
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -86,10 +87,19 @@ $(document).ready( function() {
 
 function appUpdate(evt){
 //	console.log(evt);
-	if (!evt.position) return;
-	handPos = evt.position.cam;
+	if (!evt.positions) return;
+
+	positions = [];
+	for (var i in evt.positions)
+	{
+		positions[i] = {
+		 "x" : evt.positions[i].real[0],
+		 "y" : evt.positions[i].real[1],
+		 "z" : evt.positions[i].real[2]
+		}
+	}
  	//handGrab = evt.grab;
- 	console.log(evt.position.real);
+// 	console.log(evt.position.real);
 
 };
 
